@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0d0d10">
+<title>RM Gym</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:ital,wght@0,500;0,600;0,700;1,700&family=Oswald:wght@600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- Sprite de iconos: definidos una vez, usados con <svg class="icon"><use href="#icon-x"/></svg>.
+     Usa <symbol viewBox> (no <g>) porque <use> sobre <g> dentro de un sprite de 0x0 recorta el icono en Safari. -->
+<svg class="icon-sprite" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <defs>
+    <symbol id="icon-dumbbell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="2" y="9" width="4" height="6" rx="1"/><rect x="18" y="9" width="4" height="6" rx="1"/><line x1="6" y1="12" x2="18" y2="12"/>
+    </symbol>
+    <symbol id="icon-barbell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="4" y1="12" x2="20" y2="12"/><rect x="6" y="7" width="2.5" height="10" rx="1"/><rect x="2" y="9" width="2.5" height="6" rx="1"/><rect x="15.5" y="7" width="2.5" height="10" rx="1"/><rect x="19.5" y="9" width="2.5" height="6" rx="1"/>
+    </symbol>
+    <symbol id="icon-kettlebell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M9 8a3 3 0 0 1 6 0"/><rect x="7" y="8" width="10" height="12" rx="5"/>
+    </symbol>
+    <symbol id="icon-clipboard" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="5" y="4" width="14" height="17" rx="2"/><rect x="9" y="2" width="6" height="4" rx="1"/><line x1="9" y1="11" x2="15" y2="11"/><line x1="9" y1="15" x2="13" y2="15"/>
+    </symbol>
+    <symbol id="icon-target" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none"/>
+    </symbol>
+    <symbol id="icon-calendar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="5" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/>
+    </symbol>
+    <symbol id="icon-plus-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
+    </symbol>
+    <symbol id="icon-check-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="9"/><polyline points="8 12 11 15 16 9"/>
+    </symbol>
+    <symbol id="icon-note" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/>
+    </symbol>
+    <symbol id="icon-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+    </symbol>
+    <symbol id="icon-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="9 6 15 12 9 18"/>
+    </symbol>
+    <symbol id="icon-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="3 17 9 10 13 14 21 5"/><polyline points="15 5 21 5 21 11"/>
+    </symbol>
+    <symbol id="icon-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/>
+    </symbol>
+    <symbol id="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/>
+    </symbol>
+    <symbol id="icon-flame" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 2c1 3-3 4-3 8a3 3 0 0 0 6 0c1 1 2 2 2 4a5 5 0 0 1-10 0c0-5 4-6 5-12z"/>
+    </symbol>
+    <symbol id="icon-timer" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="13" r="8"/><line x1="12" y1="13" x2="12" y2="9"/><line x1="12" y1="13" x2="15" y2="14"/><line x1="9" y1="2" x2="15" y2="2"/>
+    </symbol>
+    <symbol id="icon-scale" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="12" cy="12" r="4"/><line x1="12" y1="12" x2="12" y2="9"/><line x1="12" y1="12" x2="14" y2="13.5"/>
+    </symbol>
+    <symbol id="icon-arrow-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
+    </symbol>
+    <symbol id="icon-edit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>
+    </symbol>
+  </defs>
+</svg>
+
+<header class="topbar">
+  <h1><svg class="icon icon-lg"><use href="#icon-barbell"/></svg> RM Gym</h1>
+</header>
+
+<main id="app">
+
+  <!-- ===== TAB: REGISTRAR ===== -->
+  <section id="tab-registrar" class="tab active">
+
+    <div class="rm-entry-plain">
+      <div class="rm-selected-label" id="rm-selected-exercise">Elige un ejercicio abajo</div>
+      <input type="number" id="rm-input" class="rm-big-input" inputmode="decimal" step="0.5" min="0" placeholder="0">
+      <button class="btn btn-block" id="save-rm-btn">Guardar RM</button>
+      <p class="hint rm-entry-hint" id="rm-updated-hint"></p>
+      <p class="hint error rm-entry-hint hidden" id="rm-error-hint"></p>
+      <p class="hint success rm-entry-hint hidden" id="rm-saved-toast"><svg class="icon icon-sm"><use href="#icon-check-circle"/></svg> Guardado con éxito</p>
+    </div>
+
+    <div class="card">
+      <label class="field-label">Material</label>
+      <div class="segmented" id="equipment-selector">
+        <button class="seg-btn active" data-equipment="kettlebell"><svg class="icon"><use href="#icon-kettlebell"/></svg> Kettlebell</button>
+        <button class="seg-btn" data-equipment="dumbbell"><svg class="icon"><use href="#icon-dumbbell"/></svg> Dumbbell</button>
+        <button class="seg-btn" data-equipment="barbell"><svg class="icon"><use href="#icon-barbell"/></svg> Barbell</button>
+      </div>
+
+      <label class="field-label small" for="exercise-search">Ejercicio</label>
+      <div class="search-wrap">
+        <div class="search-row">
+          <svg class="icon"><use href="#icon-search"/></svg>
+          <input type="text" id="exercise-search" placeholder="Busca un ejercicio... (ej. swing kettlebell)" autocomplete="off">
+        </div>
+        <div class="search-results hidden" id="exercise-results"></div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ===== TAB: MIS RMS ===== -->
+  <section id="tab-rms" class="tab">
+
+    <div class="card" id="rms-search-card">
+      <label class="field-label">Material</label>
+      <div class="segmented" id="rms-filter-equipment">
+        <button class="seg-btn active" data-equipment="all">Todos</button>
+        <button class="seg-btn" data-equipment="kettlebell"><svg class="icon"><use href="#icon-kettlebell"/></svg></button>
+        <button class="seg-btn" data-equipment="dumbbell"><svg class="icon"><use href="#icon-dumbbell"/></svg></button>
+        <button class="seg-btn" data-equipment="barbell"><svg class="icon"><use href="#icon-barbell"/></svg></button>
+      </div>
+
+      <label class="field-label small" for="rms-search">Busca uno de tus ejercicios</label>
+      <div class="search-row">
+        <svg class="icon"><use href="#icon-search"/></svg>
+        <input type="text" id="rms-search" placeholder="Ej. swing kettlebell" autocomplete="off">
+      </div>
+      <p class="empty hidden" id="rms-empty">Todavía no has guardado ningún RM. Ve a "Registrar" para añadir el primero.</p>
+    </div>
+
+    <div class="card rms-results-panel hidden" id="rms-search-results"></div>
+
+    <div class="card rm-detail-card hidden" id="rms-detail-card">
+      <div class="rm-detail-header">
+        <button type="button" class="icon-btn" id="rms-back-btn" aria-label="Volver al buscador"><svg class="icon"><use href="#icon-arrow-left"/></svg></button>
+        <div class="rm-detail-title">
+          <div class="item-title" id="rms-detail-exercise"></div>
+          <span class="badge" id="rms-detail-badge"><span class="badge-dot"></span><span id="rms-detail-equipment-label"></span></span>
+        </div>
+        <button type="button" class="icon-btn" id="rms-edit-btn" aria-label="Editar RM"><svg class="icon"><use href="#icon-edit"/></svg></button>
+      </div>
+
+      <p class="hint rm-entry-hint hidden" id="rms-previous-hint"></p>
+      <div class="rm-big-value" id="rms-current-value">— kg</div>
+
+      <label class="field-label small">Pesos por porcentaje</label>
+      <div class="pct-grid" id="rms-pct-grid"></div>
+
+      <label class="field-label small">Progreso de este ejercicio</label>
+      <div id="rms-progress-chart-wrap"></div>
+      <p class="empty hidden" id="rms-progress-empty">Aún no hay suficiente histórico para este ejercicio.</p>
+      <div class="pct-grid" id="rms-progress-stats"></div>
+    </div>
+  </section>
+
+  <!-- ===== TAB: WOD HEROES ===== -->
+  <section id="tab-wods" class="tab">
+    <div class="card">
+      <label class="field-label">WOD Heroes</label>
+      <div class="search-row">
+        <svg class="icon"><use href="#icon-search"/></svg>
+        <input type="text" id="wod-search" placeholder="Buscar WOD... (ej. Murph, DT, Nate)">
+        <button type="button" class="search-clear hidden" id="wod-search-clear" aria-label="Borrar búsqueda"><svg class="icon icon-sm"><use href="#icon-x"/></svg></button>
+      </div>
+      <div id="wod-list" class="list"></div>
+      <p class="empty hidden" id="wod-empty">No hay ningún WOD que coincida con la búsqueda.</p>
+    </div>
+  </section>
+
+  <!-- ===== TAB: PESO ===== -->
+  <section id="tab-progreso" class="tab">
+
+    <div class="card">
+      <label class="field-label">Tu perfil</label>
+      <p class="hint" id="profile-summary"></p>
+      <button class="btn btn-secondary btn-block" id="edit-profile-btn">Editar perfil</button>
+
+      <div id="profile-form" class="hidden">
+        <label class="field-label small">Sexo</label>
+        <div class="segmented" id="profile-sex">
+          <button class="seg-btn active" data-sex="male">Hombre</button>
+          <button class="seg-btn" data-sex="female">Mujer</button>
+        </div>
+
+        <div class="field-row">
+          <div class="field-col">
+            <label class="field-label small" for="profile-age">Edad</label>
+            <input type="number" id="profile-age" inputmode="numeric" min="1" placeholder="Ej. 32">
+          </div>
+          <div class="field-col">
+            <label class="field-label small" for="profile-height">Altura (cm)</label>
+            <input type="number" id="profile-height" inputmode="numeric" min="1" placeholder="Ej. 178">
+          </div>
+        </div>
+
+        <label class="field-label small">Complexión</label>
+        <div class="segmented" id="profile-build">
+          <button class="seg-btn" data-build="slim">Delgada</button>
+          <button class="seg-btn active" data-build="medium">Media</button>
+          <button class="seg-btn" data-build="robust">Robusta</button>
+        </div>
+
+        <label class="field-label small">Frecuencia</label>
+        <div class="segmented" id="profile-frequency">
+          <button class="seg-btn" data-frequency="1-2">1-2</button>
+          <button class="seg-btn active" data-frequency="3-4">3-4</button>
+          <button class="seg-btn" data-frequency="5-6">5-6</button>
+          <button class="seg-btn" data-frequency="7">Diario</button>
+        </div>
+
+        <p class="hint error hidden" id="profile-error-hint"></p>
+        <button class="btn btn-block" id="save-profile-btn">Guardar perfil</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <label class="field-label">Tu composición</label>
+      <div class="pct-grid" id="composition-grid"></div>
+      <p class="hint hidden" id="composition-hint"></p>
+    </div>
+
+    <div class="card">
+      <label class="field-label" for="bodyweight-input">Apuntar peso (kg)</label>
+      <div class="rm-row">
+        <input type="number" id="bodyweight-input" inputmode="decimal" step="0.1" min="0" placeholder="Ej. 78.5">
+        <button class="btn" id="save-bodyweight-btn">Guardar</button>
+      </div>
+      <label class="field-label small" for="bodyweight-date">Fecha</label>
+      <div class="date-field">
+        <button type="button" class="date-step" id="bodyweight-date-prev" aria-label="Día anterior">
+          <svg class="icon icon-sm"><use href="#icon-chevron"/></svg>
+        </button>
+        <label class="date-field-main" for="bodyweight-date">
+          <svg class="icon icon-sm"><use href="#icon-calendar"/></svg>
+          <input type="date" id="bodyweight-date">
+        </label>
+        <button type="button" class="date-step date-step-next" id="bodyweight-date-next" aria-label="Día siguiente">
+          <svg class="icon icon-sm"><use href="#icon-chevron"/></svg>
+        </button>
+        <button type="button" class="date-today-btn" id="bodyweight-date-today">Hoy</button>
+      </div>
+      <p class="hint error hidden" id="bodyweight-error-hint"></p>
+    </div>
+
+    <div class="card">
+      <label class="field-label">Evolución del peso</label>
+      <div id="bodyweight-chart-wrap"></div>
+      <p class="empty hidden" id="bodyweight-empty">Todavía no has guardado tu peso. Apunta el de hoy arriba.</p>
+      <div class="pct-grid" id="bodyweight-stats"></div>
+    </div>
+  </section>
+
+  <!-- ===== TAB: TIMER ===== -->
+  <section id="tab-timer" class="tab">
+    <div class="card">
+      <div class="segmented" id="timer-mode-selector">
+        <button class="seg-btn active" data-mode="countdown">Countdown</button>
+        <button class="seg-btn" data-mode="stopwatch">Cronómetro</button>
+      </div>
+    </div>
+
+    <div class="card timer-card">
+      <div id="countdown-setup">
+        <label class="field-label">Duración</label>
+        <div class="timer-presets" id="timer-presets">
+          <button type="button" class="chip" data-seconds="5">5s</button>
+          <button type="button" class="chip" data-seconds="10">10s</button>
+          <button type="button" class="chip" data-seconds="20">20s</button>
+          <button type="button" class="chip" data-seconds="30">30s</button>
+          <button type="button" class="chip" data-seconds="40">40s</button>
+          <button type="button" class="chip" data-seconds="50">50s</button>
+          <button type="button" class="chip" data-seconds="60">1 min</button>
+        </div>
+
+        <label class="field-label small">O elige un tiempo a medida</label>
+        <div class="wheel-picker">
+          <div class="wheel-col" id="wheel-minutes"></div>
+          <div class="wheel-sep">:</div>
+          <div class="wheel-col" id="wheel-seconds"></div>
+          <div class="wheel-highlight"></div>
+        </div>
+      </div>
+
+      <div class="timer-ring-wrap">
+        <svg class="timer-ring" viewBox="0 0 240 240">
+          <circle class="timer-ring-track" cx="120" cy="120" r="105"/>
+          <circle class="timer-ring-progress" id="timer-ring-progress" cx="120" cy="120" r="105"/>
+        </svg>
+        <div class="timer-ring-center">
+          <div class="timer-ring-label" id="timer-ring-label">Restante</div>
+          <div class="timer-display" id="timer-display"><span id="timer-display-main">00:00</span><span class="timer-display-ms" id="timer-display-ms">00</span></div>
+        </div>
+      </div>
+
+      <div class="timer-controls">
+        <button type="button" class="btn btn-block" id="timer-toggle-btn">Empezar</button>
+        <button type="button" class="btn btn-secondary btn-block" id="timer-reset-btn">Reiniciar</button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<nav class="bottomnav">
+  <button class="nav-btn active" data-tab="tab-registrar">
+    <span class="nav-icon-wrap"><svg class="icon nav-icon"><use href="#icon-clipboard"/></svg></span><span>Registrar</span>
+  </button>
+  <button class="nav-btn" data-tab="tab-wods">
+    <span class="nav-icon-wrap"><svg class="icon nav-icon"><use href="#icon-flame"/></svg></span><span>WODs</span>
+  </button>
+  <button class="nav-btn nav-btn-main" data-tab="tab-rms">
+    <span class="nav-icon-wrap"><svg class="icon nav-icon"><use href="#icon-target"/></svg></span><span>Mis RMs</span>
+  </button>
+  <button class="nav-btn" data-tab="tab-progreso">
+    <span class="nav-icon-wrap"><svg class="icon nav-icon"><use href="#icon-scale"/></svg></span><span>Peso</span>
+  </button>
+  <button class="nav-btn" data-tab="tab-timer">
+    <span class="nav-icon-wrap"><svg class="icon nav-icon"><use href="#icon-timer"/></svg></span><span>Timer</span>
+  </button>
+</nav>
+
+<!-- Popup para editar el RM desde Mis RMs -->
+<div class="modal-overlay hidden" id="rm-edit-modal">
+  <div class="modal-card">
+    <label class="field-label" for="rm-edit-input">Nuevo RM (kg)</label>
+    <input type="number" id="rm-edit-input" inputmode="decimal" step="0.5" min="0" placeholder="Ej. 32">
+    <p class="hint error hidden" id="rm-edit-error"></p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" id="rm-edit-cancel">Cancelar</button>
+      <button class="btn" id="rm-edit-save">Guardar</button>
+    </div>
+    <button class="btn btn-danger btn-block" id="rm-edit-delete-btn" style="margin-top:10px">
+      <svg class="icon icon-sm"><use href="#icon-trash"/></svg> Eliminar este RM
+    </button>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

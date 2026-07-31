@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "gym-rm-app",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "8765", "--directory", "/Users/dani/Documents/GitHub/gym-rm-app/Gym"],
+      "port": 8765,
+      "autoPort": false
+    }
+  ]
+}

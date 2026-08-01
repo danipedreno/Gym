@@ -1,25 +1,29 @@
 :root {
-  --bg: #e7e7ea;
-  --card: #ffffff;
-  --card-glass: #ffffff;
-  --card-border: #d8d8dc;
-  --card-border-glass: rgba(20, 20, 30, 0.09);
-  --text: #131316;
-  --text-dim: #6b6b72;
+  --paper: #f3efe3;
+  --white: #ffffff;
+  --ink: #14120f;
+  --yellow: #eeea3d;
+  --orange: #ff4d1f;
+  --navy: #0b3049;
+  --pink: #ffb6e6;
+  --olive: #43411f;
+  --teal: #1f5c5c;
+  --sage: #b9c2ba;
+  --text: var(--ink);
+  --text-dim: #726c60;
   --accent: #ff4d1f;
-  --accent-dim: #ffd9c9;
-  --accent-glow: rgba(255, 77, 31, 0.18);
-  --ink: #170903;
-  --nav-bg: #3c3c44;
-  --kettlebell: #3b6fe0;
-  --dumbbell: #9b52f0;
-  --barbell: #1f9a5a;
-  --danger: #e0304a;
-  --radius: 20px;
-  --radius-sm: 16px;
+  --accent-glow: rgba(255, 77, 31, 0.35);
+  --nav-bg: #14120f;
+  --kettlebell: #0b3049;
+  --dumbbell: #e0529b;
+  --barbell: #1f5c5c;
+  --danger: #d81e3e;
+  --border: var(--ink);
+  --radius: 0px;
+  --radius-sm: 0px;
   --radius-pill: 999px;
   --font: 'Familjen Grotesk', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  --font-condensed: 'Oswald', 'Familjen Grotesk', sans-serif;
+  --font-display: 'Archivo', 'Familjen Grotesk', sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -29,7 +33,6 @@
 html, body {
   margin: 0;
   padding: 0;
-  background: var(--bg);
   color: var(--text);
   font-family: var(--font);
   font-weight: 500;
@@ -37,51 +40,38 @@ html, body {
 }
 
 body {
+  background: var(--paper);
   padding-bottom: calc(72px + env(safe-area-inset-bottom));
   min-height: 100vh;
   position: relative;
   overflow-x: hidden;
 }
 
-/* Fondo ambiental: base gris con una mancha naranja difuminada en lento movimiento */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background:
-    radial-gradient(26rem 22rem at 20% -6%, rgba(255, 77, 31, 0.18), transparent 65%),
-    radial-gradient(30rem 26rem at 102% 38%, rgba(120, 120, 132, 0.14), transparent 62%);
-  filter: blur(8px);
-  animation: drift 24s ease-in-out infinite alternate;
-}
-@keyframes drift {
-  from { transform: translate3d(0, 0, 0) scale(1); }
-  to { transform: translate3d(-4%, 4%, 0) scale(1.1); }
-}
-
 .topbar {
   padding: calc(16px + env(safe-area-inset-top)) 20px 12px;
   position: sticky;
   top: 0;
-  background: rgba(231, 231, 234, 0.82);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+  background: var(--ink);
   z-index: 10;
-  border-bottom: 1px solid var(--card-border-glass);
+  border-bottom: 2px solid var(--ink);
+}
+.topbar-inner {
+  max-width: 560px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
 }
 .topbar h1 {
   margin: 0;
-  font-size: 1.5rem;
-  font-weight: 700;
-  font-style: italic;
-  text-transform: uppercase;
-  letter-spacing: 0.01em;
   display: flex;
-  justify-content: center;
   align-items: center;
-  gap: 8px;
+}
+.brand-logo {
+  width: 22px;
+  height: 30px;
+  color: var(--paper);
 }
 
 #app { padding: 16px; max-width: 560px; margin: 0 auto; position: relative; }
@@ -94,53 +84,71 @@ body::before {
 }
 
 .card {
-  background: var(--card-glass);
-  border: 1px solid var(--card-border-glass);
-  border-radius: var(--radius);
+  background: var(--white);
+  border: 2px solid var(--ink);
+  border-radius: 0;
   padding: 16px;
   margin-bottom: 14px;
-  box-shadow: 0 10px 24px -16px rgba(20, 20, 32, 0.18);
 }
+
+/* Sección sin caja: mismo contenido que .card pero sin fondo/borde,
+   para las zonas que no necesitan leerse como bloque de color. */
+.plain-section { margin-bottom: 28px; }
+.plain-section:last-child { margin-bottom: 0; }
+
+/* Antes cristal esmerilado; ahora un bloque plano blanco con borde negro
+   grueso (mismo lenguaje que las tarjetas de "Year in Sport": color plano,
+   sin blur, sin sombra). */
+.glass-panel {
+  background: var(--white);
+  border: 2px solid var(--ink);
+  border-radius: 0;
+  padding: 16px;
+  margin-bottom: 28px;
+}
+.glass-panel:last-child { margin-bottom: 0; }
 
 .field-label {
   display: block;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   color: var(--text-dim);
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
   margin-bottom: 8px;
-  font-weight: 600;
+  font-weight: 700;
 }
-.field-label.small { margin-top: 10px; font-size: 0.72rem; }
+.field-label.small { margin-top: 10px; font-size: 0.7rem; }
 
 select, input[type="text"], input[type="number"] {
   width: 100%;
-  background: rgba(20, 20, 30, 0.045);
-  border: 1px solid var(--card-border-glass);
+  background: var(--white);
+  border: 2px solid var(--ink);
   color: var(--text);
   padding: 12px 14px;
-  border-radius: var(--radius-sm);
+  border-radius: 0;
   font-size: 1rem;
   font-family: var(--font);
   outline: none;
-  transition: border-color .2s var(--ease);
+  transition: background-color .15s var(--ease);
 }
-select:focus, input:focus { border-color: var(--accent); }
+select:focus, input:focus { background: var(--yellow); }
 
+/* Trazos finos (1px, no 2px): a este tamaño de botón el borde grueso general
+   de la app se veía pesado. */
 .segmented {
   display: flex;
-  gap: 8px;
-  background: rgba(20, 20, 30, 0.045);
-  padding: 4px;
-  border-radius: var(--radius-pill);
-  border: 1px solid var(--card-border-glass);
+  gap: 1px;
+  background: var(--ink);
+  padding: 1px;
+  border-radius: 0;
+  border: 1px solid var(--ink);
 }
 .seg-btn {
   flex: 1;
   padding: 9px 6px;
-  border-radius: var(--radius-pill);
+  border-radius: 0;
   border: none;
-  background: transparent;
+  background: var(--white);
   color: var(--text-dim);
   font-size: 0.85rem;
   font-weight: 700;
@@ -154,7 +162,6 @@ select:focus, input:focus { border-color: var(--accent); }
 .seg-btn.active {
   background: var(--accent);
   color: var(--ink);
-  box-shadow: 0 4px 18px -4px var(--accent-glow);
 }
 .seg-btn:active, .btn:active { transform: scale(0.96); }
 
@@ -163,6 +170,65 @@ select:focus, input:focus { border-color: var(--accent); }
 .rm-row { display: flex; gap: 8px; }
 .rm-row input { flex: 1; }
 
+/* Selector de material en Registrar: cada material tiene su propio color fijo
+   (igual que un bloque de la rueda "Year in Sport"), atenuado hasta elegirlo. */
+/* El fondo negro del propio row hace de línea entre botones (gap 2px sin
+   fondo dejaba huecos color página, no negros). */
+.material-row { display: flex; gap: 2px; margin-bottom: 16px; border: 2px solid var(--ink); background: var(--ink); }
+/* El fondo de cada material es fijo (activo o no, mismo color: apagarlo con
+   opacity general lo dejaba sucio). Lo que se apaga es el icono+texto, no el
+   bloque de color entero — así se ve claramente cuál está elegido sin perder
+   el color de identidad de cada material. */
+.material-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 14px 6px;
+  border: none;
+  font-family: var(--font);
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  box-shadow: inset 0 0 0 0 var(--ink);
+  transition: box-shadow .2s var(--ease), color .2s var(--ease), transform .15s var(--ease);
+}
+.material-btn[data-equipment="kettlebell"] { background: var(--navy); color: rgba(255, 255, 255, 0.22); }
+.material-btn[data-equipment="dumbbell"] { background: var(--pink); color: rgba(20, 18, 15, 0.18); }
+.material-btn[data-equipment="barbell"] { background: var(--teal); color: rgba(255, 255, 255, 0.22); }
+.material-btn.active[data-equipment="kettlebell"],
+.material-btn.active[data-equipment="barbell"] { color: var(--white); }
+.material-btn.active[data-equipment="dumbbell"] { color: var(--ink); }
+.material-btn:active { transform: scale(0.96); }
+.material-btn.active { box-shadow: inset 0 0 0 3px var(--ink); }
+
+/* Filtro de material en Mis RMs: mismo criterio — fondo fijo, se apaga el
+   icono, y el activo lleva anillo blanco. */
+.material-circles { display: flex; justify-content: center; gap: 14px; margin-bottom: 8px; }
+.material-circle-btn {
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 0 0 0 var(--white);
+  transition: box-shadow .15s var(--ease), color .15s var(--ease), transform .15s var(--ease);
+}
+.material-circle-btn[data-equipment="kettlebell"] { background: var(--navy); color: rgba(255, 255, 255, 0.22); }
+.material-circle-btn[data-equipment="dumbbell"] { background: var(--pink); color: rgba(20, 18, 15, 0.18); }
+.material-circle-btn[data-equipment="barbell"] { background: var(--teal); color: rgba(255, 255, 255, 0.22); }
+.material-circle-btn.active[data-equipment="kettlebell"],
+.material-circle-btn.active[data-equipment="barbell"] { color: var(--white); }
+.material-circle-btn.active[data-equipment="dumbbell"] { color: var(--ink); }
+.material-circle-btn .icon { width: 24px; height: 24px; }
+.material-circle-btn:active { transform: scale(0.92); }
+.material-circle-btn.active { box-shadow: inset 0 0 0 3px var(--white); }
+
 .field-row { display: flex; gap: 10px; }
 .field-col { flex: 1; min-width: 0; }
 
@@ -170,33 +236,23 @@ select:focus, input:focus { border-color: var(--accent); }
   text-align: center;
   padding: 28px 0 22px;
 }
-.rm-selected-label {
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: var(--text-dim);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin-bottom: 4px;
-  min-height: 1.2em;
-  font-family: var(--font-mono);
-}
 input[type="number"].rm-big-input {
   background: transparent;
   border: none;
   border-radius: 0;
   text-align: center;
-  font-family: var(--font-condensed);
+  font-family: var(--font-display);
   font-size: clamp(5rem, 26vw, 8.5rem);
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: -0.02em;
   line-height: 1;
-  color: var(--text);
+  color: var(--ink);
   padding: 8px 0 18px;
   margin-bottom: 4px;
   width: 100%;
 }
-.rm-big-input::placeholder { color: rgba(19, 19, 22, 0.14); }
-.rm-big-input:focus { border: none; }
+.rm-big-input::placeholder { color: rgba(20, 18, 15, 0.14); }
+.rm-big-input:focus { border: none; background: transparent; }
 .rm-big-input::-webkit-inner-spin-button,
 .rm-big-input::-webkit-outer-spin-button {
   -webkit-appearance: none;
@@ -204,99 +260,95 @@ input[type="number"].rm-big-input {
 }
 .rm-big-input { -moz-appearance: textfield; }
 .rm-entry-hint { justify-content: center; }
+.rm-save-block { text-align: center; margin-top: 20px; }
 
 .rm-detail-header { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
 .rm-detail-title { flex: 1; text-align: center; }
 .icon-btn {
-  background: rgba(20, 20, 30, 0.06);
-  border: 1px solid var(--card-border-glass);
-  color: var(--text);
+  background: var(--white);
+  border: 2px solid var(--ink);
+  color: var(--ink);
   width: 36px;
   height: 36px;
-  border-radius: var(--radius-pill);
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
   transition: background-color .15s var(--ease), color .15s var(--ease), transform .15s var(--ease);
 }
-.icon-btn:active { transform: scale(0.9); background: var(--accent); color: var(--ink); }
+.icon-btn:active { transform: scale(0.9); background: var(--accent); }
 
-.date-field {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: rgba(20, 20, 30, 0.045);
-  border: 1px solid var(--card-border-glass);
-  border-radius: var(--radius-pill);
-  padding: 4px;
-}
-.date-step {
-  background: transparent;
-  border: none;
+/* "Apuntar peso": el número manda (grande, sin caja, se escribe directo, con
+   "Kg" al lado); fecha y Guardar van pegados a continuación, no despegados
+   al borde derecho — la fila no se estira, solo ocupa lo que necesita. */
+.bw-row { display: flex; align-items: flex-end; gap: 10px; flex-wrap: wrap; }
+.bw-value { display: flex; align-items: baseline; gap: 5px; flex: 0 0 auto; }
+.bw-unit {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
   color: var(--text-dim);
-  width: 36px;
-  height: 36px;
-  flex-shrink: 0;
-  border-radius: var(--radius-pill);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background-color .15s var(--ease), color .15s var(--ease), transform .15s var(--ease);
+  padding-bottom: 0.25em;
 }
-.date-step .icon { transform: rotate(180deg); }
-.date-step-next .icon { transform: rotate(0deg); }
-.date-step:active { transform: scale(0.9); background: rgba(20, 20, 30, 0.07); color: var(--text); }
-
-.date-field-main {
-  flex: 1;
-  min-width: 0;
+.bw-side { flex: 0 0 auto; width: 120px; display: flex; flex-direction: column; gap: 6px; }
+/* Sin icono propio de calendario: el <input type="date"> nativo ya trae el
+   suyo, y en esta columna tan estrecha duplicarlo solo quitaba sitio al texto. */
+.bw-date-btn {
   display: flex;
   align-items: center;
-  gap: 8px;
+  background: var(--white);
+  border: 2px solid var(--ink);
+  border-radius: 0;
   padding: 0 4px;
   color: var(--accent);
 }
-.date-field-main input[type="date"] {
-  flex: 1;
+.bw-date-input {
+  width: 100%;
   min-width: 0;
   background: transparent;
   border: none;
   color: var(--text);
   font-family: var(--font);
-  font-size: 0.95rem;
-  font-weight: 600;
-  padding: 8px 0;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 10px 0;
   color-scheme: light;
 }
-.date-field-main input[type="date"]:focus { outline: none; }
-.date-field-main input[type="date"]::-webkit-calendar-picker-indicator {
-  cursor: pointer;
-  border-radius: 6px;
+.bw-date-input:focus { outline: none; }
+.bw-date-input::-webkit-calendar-picker-indicator { cursor: pointer; border-radius: 6px; }
+.bw-save-btn { width: 100%; }
+/* Sin caja: nada de fondo ni borde, como el número gigante de Registrar.
+   input[type="number"].bw-input (no solo .bw-input) para ganarle en
+   especificidad a la regla genérica de inputs, que si no deja la caja blanca. */
+input[type="number"].bw-input {
+  flex: 0 0 auto;
+  width: 4.2ch;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  text-align: left;
+  font-family: var(--font-display);
+  font-size: clamp(2.6rem, 13vw, 3.4rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--ink);
 }
-.date-field-main input[type="date"]::-webkit-datetime-edit { color: var(--text); }
-
-.date-today-btn {
-  flex-shrink: 0;
-  background: rgba(255, 77, 31, 0.12);
-  border: 1px solid transparent;
-  color: var(--accent);
-  font-family: var(--font);
-  font-size: 0.78rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  padding: 9px 14px;
-  border-radius: var(--radius-pill);
-  transition: background-color .15s var(--ease), transform .15s var(--ease);
+.bw-input::placeholder { color: rgba(20, 18, 15, 0.16); }
+.bw-input:focus { background: transparent; }
+.bw-input::-webkit-inner-spin-button,
+.bw-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
-.date-today-btn:active { transform: scale(0.94); background: var(--accent); color: var(--ink); }
+.bw-input { -moz-appearance: textfield; }
 
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(6px);
+  background: rgba(20, 18, 15, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -305,15 +357,15 @@ input[type="number"].rm-big-input {
   animation: fade .2s var(--ease);
 }
 .modal-card {
-  background: var(--card);
-  border: 1px solid var(--card-border-glass);
-  border-radius: var(--radius);
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  border-radius: 0;
   padding: 20px;
   width: 100%;
   max-width: 320px;
-  box-shadow: 0 24px 48px -12px rgba(20, 20, 32, 0.28);
   animation: modal-in .25s var(--ease);
 }
+.modal-card-scroll { max-height: calc(100vh - 48px); overflow-y: auto; }
 @keyframes modal-in {
   from { opacity: 0; transform: scale(0.94) translateY(8px); }
   to { opacity: 1; transform: scale(1) translateY(0); }
@@ -322,6 +374,7 @@ input[type="number"].rm-big-input {
 .modal-actions .btn { flex: 1; margin-top: 0; }
 .rm-big-value {
   text-align: center;
+  font-family: var(--font-display);
   font-size: 3.4rem;
   font-weight: 700;
   letter-spacing: -0.03em;
@@ -333,9 +386,9 @@ input[type="number"].rm-big-input {
 .btn {
   background: var(--accent);
   color: var(--ink);
-  border: none;
+  border: 2px solid var(--ink);
   padding: 12px 18px;
-  border-radius: var(--radius-pill);
+  border-radius: 0;
   font-weight: 700;
   font-family: var(--font);
   font-size: 0.95rem;
@@ -345,61 +398,109 @@ input[type="number"].rm-big-input {
   justify-content: center;
   gap: 6px;
   transition: transform .15s var(--ease), opacity .15s var(--ease);
-  box-shadow: 0 4px 20px -6px var(--accent-glow);
 }
 .btn:active { opacity: 0.85; }
 .btn-secondary {
-  background: rgba(20, 20, 30, 0.07);
+  background: var(--white);
   color: var(--text);
-  box-shadow: none;
 }
 .btn-block { width: 100%; margin-top: 14px; }
 .btn-danger {
-  background: transparent;
+  background: var(--white);
   color: var(--danger);
-  border: 1px solid var(--danger);
+  border: 2px solid var(--danger);
   padding: 6px 12px;
   font-size: 0.8rem;
-  border-radius: var(--radius-pill);
-  box-shadow: none;
+  border-radius: 0;
 }
 .btn-danger-armed {
   background: var(--danger);
-  color: #1a0407;
+  color: var(--white);
   border-color: var(--danger);
 }
 
 .hint { font-size: 0.8rem; color: var(--text-dim); margin: 8px 0 0; display: flex; align-items: center; gap: 6px; }
-.hint.success { color: var(--barbell); font-weight: 600; }
-.hint.error { color: var(--danger); font-weight: 600; }
+.hint.error { color: var(--danger); font-weight: 700; }
 
-/* ===== Bento grid de porcentajes ===== */
+/* ===== Bento grid de porcentajes: bloques de color plano, como la rueda
+   "Year in Sport" (naranja/amarillo/azul marino/rosa/oliva/verde azulado). */
 .pct-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
+  gap: 2px;
+  background: var(--ink);
+  border: 2px solid var(--ink);
 }
+#rms-progress-stats,
+#bodyweight-stats,
+#composition-grid {
+  grid-template-columns: repeat(3, 1fr);
+}
+#composition-grid .pct-tile { padding: 12px 8px; }
+#composition-grid .pct-tile.hero { grid-column: span 1; }
+#composition-grid .pct-tile-value { font-size: 1.3rem; }
+#composition-grid .pct-tile.hero .pct-tile-value { font-size: 1.5rem; }
 .pct-tile {
-  grid-column: span 1;
-  background: rgba(20, 20, 30, 0.045);
-  border: 1px solid var(--card-border-glass);
-  border-radius: var(--radius-sm);
+  background: var(--teal);
+  color: var(--white);
+  border-radius: 0;
   padding: 14px;
   opacity: 0;
   transform: translateY(8px) scale(0.98);
   animation: tile-in .35s var(--ease) forwards;
 }
-.pct-tile.hero {
-  grid-column: 1 / -1;
-  background: linear-gradient(135deg, rgba(255, 77, 31, 0.16), rgba(255, 77, 31, 0.04));
-  border-color: rgba(255, 77, 31, 0.3);
-}
+/* Naranja queda fuera del ciclo: es el color del CTA (Guardar, RM, activo),
+   no se reutiliza como uno más de los bloques de estadística. */
+.pct-tile:nth-child(6n+2) { background: var(--yellow); color: var(--ink); }
+.pct-tile:nth-child(6n+3) { background: var(--navy); color: var(--white); }
+.pct-tile:nth-child(6n+4) { background: var(--pink); color: var(--ink); }
+.pct-tile:nth-child(6n+5) { background: var(--olive); color: var(--white); }
+.pct-tile:nth-child(6n+0) { background: var(--sage); color: var(--ink); }
+/* El hero (ej. IMC) siempre queda neutro: es la cifra principal, no una más
+   del ciclo de color (mismo patrón que "DAYS ACTIVE" en la referencia). */
+.pct-tile.hero { background: var(--paper); color: var(--ink); }
 @keyframes tile-in { to { opacity: 1; transform: translateY(0) scale(1); } }
-.pct-tile-label { font-size: 0.72rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; }
-.pct-tile-value { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.02em; margin-top: 4px; color: var(--text); }
+.pct-tile-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.7rem;
+  color: inherit;
+  opacity: 0.75;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+}
+.pct-tile-label .icon { width: 13px; height: 13px; }
+.pct-tile-value { font-family: var(--font-display); font-size: 1.6rem; font-weight: 700; letter-spacing: -0.02em; margin-top: 4px; color: inherit; }
 .pct-tile.hero .pct-tile-value { font-size: 2.1rem; color: var(--accent); }
-.pct-tile-sub { font-size: 0.72rem; color: var(--text-dim); margin-top: 4px; }
-.pct-empty { color: var(--text-dim); font-size: 0.85rem; grid-column: 1 / -1; text-align: center; padding: 12px 0; }
+.pct-tile-sub { font-size: 0.7rem; color: inherit; opacity: 0.7; margin-top: 4px; }
+.pct-empty { color: var(--text-dim); font-size: 0.85rem; grid-column: 1 / -1; text-align: center; padding: 12px 0; background: var(--paper); }
+
+/* 5 puntos (no una barra de tramos): el activo se agranda, y la categoría
+   ("Normal", "Sobrepeso"...) va al lado, no encima. Mismo margin-top que
+   .pct-tile-sub (4px, no 8px) para que las tres tiles queden alineadas. */
+.bmi-gauge-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 4px;
+}
+.bmi-gauge-dots { display: flex; gap: 4px; flex-shrink: 0; }
+.bmi-gauge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(20, 18, 15, 0.16);
+  transition: background-color .2s var(--ease), transform .2s var(--ease);
+}
+.bmi-gauge-dot.active { background: var(--accent); transform: scale(1.6); }
+.bmi-gauge-label {
+  font-size: 0.66rem;
+  font-weight: 700;
+  color: var(--accent);
+  line-height: 1.15;
+}
 
 .chart-svg { width: 100%; height: auto; display: block; }
 .chart-line {
@@ -417,9 +518,9 @@ input[type="number"].rm-big-input {
 .list { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
 
 .item {
-  background: rgba(20, 20, 30, 0.045);
-  border: 1px solid var(--card-border-glass);
-  border-radius: var(--radius-sm);
+  background: var(--white);
+  border: 2px solid var(--ink);
+  border-radius: 0;
   padding: 12px 14px;
   overflow: hidden;
   opacity: 0;
@@ -445,10 +546,10 @@ input[type="number"].rm-big-input {
   font-size: 0.7rem;
   font-weight: 700;
   padding: 4px 10px 4px 8px;
-  border-radius: var(--radius-pill);
-  color: var(--text);
-  background: rgba(20, 20, 30, 0.06);
-  border: 1px solid var(--card-border-glass);
+  border-radius: 0;
+  color: var(--ink);
+  background: var(--white);
+  border: 2px solid var(--ink);
   white-space: nowrap;
 }
 .badge-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
@@ -462,7 +563,7 @@ input[type="number"].rm-big-input {
   overflow: hidden;
   transition: height .22s var(--ease), opacity .18s var(--ease);
 }
-.item-detail-inner { padding-top: 10px; margin-top: 8px; border-top: 1px dashed var(--card-border-glass); }
+.item-detail-inner { padding-top: 10px; margin-top: 8px; border-top: 2px dashed var(--ink); }
 .item.expanded .item-detail { opacity: 1; }
 
 .empty { color: var(--text-dim); font-size: 0.9rem; text-align: center; padding: 10px 0; }
@@ -471,10 +572,8 @@ input[type="number"].rm-big-input {
   position: fixed;
   bottom: 0; left: 0; right: 0;
   display: flex;
-  background: rgba(60, 60, 68, 0.85);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-top: 1px solid var(--card-border-glass);
+  background: var(--ink);
+  border-top: 2px solid var(--ink);
   padding-bottom: env(safe-area-inset-bottom);
   z-index: 20;
 }
@@ -482,7 +581,7 @@ input[type="number"].rm-big-input {
   flex: 1;
   background: none;
   border: none;
-  color: var(--text-dim);
+  color: rgba(243, 239, 227, 0.5);
   padding: 10px 4px 8px;
   display: flex;
   flex-direction: column;
@@ -495,7 +594,7 @@ input[type="number"].rm-big-input {
 .nav-icon-wrap {
   width: 36px;
   height: 36px;
-  border-radius: var(--radius-pill);
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -513,17 +612,20 @@ input[type="number"].rm-big-input {
   100% { transform: scale(1.05); }
 }
 
-/* Mis RMs es la pantalla principal: botón central elevado, siempre en lima. */
+/* Mis RMs es la pantalla principal: botón central elevado (más grande, con
+   anillo), pero solo se enciende en naranja cuando de verdad es la pestaña
+   activa — si no, confundía con la pestaña que sí lo está. */
 .nav-btn-main .nav-icon-wrap {
   width: 54px;
   height: 54px;
   margin-top: -24px;
-  background: var(--accent);
-  color: var(--ink);
-  box-shadow: 0 10px 26px -6px var(--accent-glow), 0 0 0 6px var(--nav-bg);
+  background: var(--nav-bg);
+  color: rgba(243, 239, 227, 0.55);
+  box-shadow: 0 0 0 6px var(--nav-bg);
+  border: 2px solid var(--ink);
 }
 .nav-btn-main .nav-icon { width: 26px; height: 26px; }
-.nav-btn-main span:last-child { font-weight: 700; }
+.nav-btn-main span:last-child { font-weight: 700; margin-top: 6px; }
 .nav-btn-main.active .nav-icon-wrap { transform: scale(1.08); }
 .nav-btn.active { color: var(--accent); }
 
@@ -545,9 +647,9 @@ input[type="number"].rm-big-input {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: rgba(20, 20, 30, 0.045);
-  border: 1px solid var(--card-border-glass);
-  border-radius: var(--radius-sm);
+  background: var(--white);
+  border: 2px solid var(--ink);
+  border-radius: 0;
   padding: 0 12px;
   color: var(--text-dim);
 }
@@ -556,7 +658,30 @@ input[type="number"].rm-big-input {
   background: transparent;
   padding: 12px 0;
 }
-.search-row input:focus { border: none; }
+.search-row input:focus { border: none; background: transparent; }
+/* Solo el buscador-rueda de Registrar: mismo estilo que sus filas de resultado
+   (rueda), para que escribir crezca desde el centro en vez de ir a la izquierda. */
+#exercise-search {
+  text-align: center;
+  font-family: var(--font);
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--text);
+}
+#exercise-search::placeholder {
+  font-family: var(--font);
+  font-weight: 700;
+  color: var(--text-dim);
+}
+.search-wrap .search-row { position: relative; padding-left: 0; padding-right: 0; }
+.search-wrap .search-row .icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+.search-wrap .search-row input#exercise-search { padding: 12px 34px; }
 .search-clear {
   background: none;
   border: none;
@@ -566,6 +691,9 @@ input[type="number"].rm-big-input {
 }
 
 .search-wrap { position: relative; }
+/* Selector de rueda: lista de todos los ejercicios (o los que coincidan con lo
+   escrito) con scroll-snap, como la rueda del timer. Tocar cualquiera lo elige;
+   desplazarse resalta el que queda en el centro, a modo de guía visual. */
 .search-results {
   position: absolute;
   top: calc(100% + 6px);
@@ -573,49 +701,69 @@ input[type="number"].rm-big-input {
   right: 0;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  max-height: 260px;
+  max-height: 234px;
   overflow-y: auto;
-  padding: 8px;
-  background: var(--card);
-  border: 1px solid var(--card-border-glass);
-  border-radius: var(--radius-sm);
-  box-shadow: 0 16px 32px -8px rgba(20, 20, 32, 0.2);
+  scroll-snap-type: y proximity;
+  padding: 4px 0;
+  background: var(--white);
+  border: 2px solid var(--ink);
+  border-radius: 0;
   z-index: 30;
   animation: fade .18s var(--ease);
 }
 .search-result {
-  text-align: left;
-  background: rgba(20, 20, 30, 0.05);
-  border: 1px solid var(--card-border-glass);
-  border-radius: 10px;
-  padding: 10px 12px;
-  color: var(--text);
+  text-align: center;
+  background: none;
+  border: none;
+  padding: 11px 12px;
+  color: rgba(20, 18, 15, 0.4);
   font-family: var(--font);
-  font-size: 0.9rem;
+  font-weight: 700;
+  font-size: 1.05rem;
+  scroll-snap-align: center;
+  transition: color .15s var(--ease), transform .15s var(--ease);
+}
+.search-result.active { color: var(--text); }
+.search-result:active { transform: scale(0.97); }
+.search-result-add {
+  color: var(--accent) !important;
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  gap: 6px;
+  font-family: var(--font);
+  font-size: 0.9rem;
+}
+
+/* Fila resumen de un RM guardado: icono + nombre, mini-porcentajes y valor grande.
+   Sin caja: solo una línea divisoria abajo para diferenciar una tarjeta de la
+   siguiente (la última fila no lleva línea, ya la cierra la sección). */
+.rm-list-row {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  color: var(--text);
+  padding: 14px 4px;
+  border-bottom: 2px solid var(--ink);
+  font-family: var(--font);
   transition: background-color .15s var(--ease), transform .15s var(--ease);
 }
-.search-result:active { transform: scale(0.98); background: rgba(20, 20, 30, 0.07); }
-.search-result-add { color: var(--accent); border-color: rgba(255, 77, 31, 0.3); font-weight: 700; }
-.search-result-name { flex: 1; }
-.search-result-value { color: var(--text-dim); font-weight: 700; flex-shrink: 0; }
-
-/* Fila resumen de un RM guardado: icono + nombre, mini-porcentajes, valor grande y flecha */
-.rm-list-row { padding: 14px 14px 14px 16px; align-items: center; }
+.rms-results-panel .rm-list-row:last-child { border-bottom: none; }
+.rm-list-row:active { transform: scale(0.98); background: var(--yellow); }
 .rm-list-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
 .rm-list-header { display: flex; align-items: center; gap: 8px; min-width: 0; }
 .rm-list-icon-wrap {
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: rgba(20, 20, 30, 0.07);
+  background: var(--paper);
+  border: 2px solid var(--ink);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-dim);
+  color: var(--ink);
   flex-shrink: 0;
 }
 .rm-list-icon-wrap .icon { width: 13px; height: 13px; }
@@ -628,19 +776,26 @@ input[type="number"].rm-big-input {
   white-space: nowrap;
   min-width: 0;
 }
-.rm-list-meta { display: flex; flex-wrap: wrap; gap: 10px 16px; }
-.rm-list-meta-col { display: flex; flex-direction: column; gap: 2px; }
+.rm-list-meta { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
+.rm-list-meta-col { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .rm-list-meta-label {
   font-family: var(--font-mono);
-  font-size: 0.6rem;
+  font-size: 0.58rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
   color: var(--text-dim);
 }
-.rm-list-meta-value { font-size: 0.78rem; font-weight: 700; color: var(--text); }
+.rm-list-meta-value {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .rm-list-value {
-  font-family: var(--font-condensed);
+  font-family: var(--font-display);
   font-size: 1.9rem;
   font-weight: 700;
   letter-spacing: -0.02em;
@@ -648,62 +803,74 @@ input[type="number"].rm-big-input {
   color: var(--accent);
 }
 
-/* Panel de resultados de Mis RMs: caja propia, en flujo normal (no flotante, no scroll anidado) */
+/* Panel de resultados de Mis RMs: en flujo normal (no flotante, no scroll anidado);
+   el espaciado entre filas lo da el padding + la línea divisoria de cada fila. */
 .rms-results-panel {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  margin-bottom: 28px;
 }
-.rm-list-arrow {
-  flex-shrink: 0;
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  background: rgba(20, 20, 30, 0.06);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text);
-}
-
 /* ===== WOD Heroes ===== */
 .wod-format { font-size: 0.72rem; color: var(--accent); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
 .wod-movements { margin: 0; padding-left: 18px; color: var(--text); font-size: 0.9rem; display: flex; flex-direction: column; gap: 4px; }
 
 /* ===== Timer ===== */
-.timer-card { display: flex; flex-direction: column; align-items: center; gap: 16px; }
-.timer-presets {
+/* Selector Countdown/Cronómetro: texto plano, el inactivo se ve atenuado
+   (sugiere que se puede pasar de uno a otro, con swipe o con un toque). */
+.timer-mode-row {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 14px;
+  justify-content: center;
+  align-items: center;
+  gap: 22px;
+  margin: 4px 0 28px;
 }
-.chip {
-  background: rgba(20, 20, 30, 0.055);
-  border: 1px solid var(--card-border-glass);
-  color: var(--text);
+.timer-mode-label {
+  background: none;
+  border: none;
+  padding: 4px 0;
   font-family: var(--font);
   font-weight: 700;
-  font-size: 0.85rem;
-  padding: 8px 14px;
-  border-radius: var(--radius-pill);
-  transition: background-color .15s var(--ease), transform .15s var(--ease), color .15s var(--ease);
+  font-size: 1.05rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--text-dim);
+  transition: color .2s var(--ease), transform .15s var(--ease);
 }
-.chip:active { transform: scale(0.95); }
-.chip.active { background: var(--accent); color: var(--ink); border-color: var(--accent); }
+.timer-mode-label.active { color: var(--ink); }
+.timer-mode-label:active { transform: scale(0.95); }
+
+.timer-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  padding-bottom: 24px;
+  touch-action: pan-y;
+}
+.timer-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 150px;
+  /* Selector y reloj comparten exactamente el mismo tamaño de cifra para que
+     al arrancar no haya ningún salto de tamaño ni de posición. */
+  --timer-num-size: clamp(5rem, 26vw, 8.5rem);
+}
 
 .wheel-picker {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  height: 120px;
-  margin-top: 10px;
+  gap: 0;
+  font-size: var(--timer-num-size);
+  height: 1.3em;
 }
 .wheel-col {
-  width: 64px;
-  height: 120px;
+  width: 1.15em;
+  height: 1.3em;
   overflow-y: scroll;
   scroll-snap-type: y mandatory;
   scrollbar-width: none;
@@ -713,87 +880,43 @@ input[type="number"].rm-big-input {
 .wheel-col::after {
   content: '';
   display: block;
-  height: 40px;
+  height: 0;
 }
 .wheel-item {
-  height: 40px;
+  height: calc(var(--timer-num-size) * 1.3);
   display: flex;
   align-items: center;
   justify-content: center;
   scroll-snap-align: center;
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--text-dim);
+  font-family: var(--font-display);
+  font-size: 0.34em;
+  font-weight: 700;
+  color: rgba(20, 18, 15, 0.22);
   font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
   transition: color .15s var(--ease), font-size .15s var(--ease);
 }
-.wheel-item.active { color: var(--accent); font-size: 1.6rem; font-weight: 700; }
-.wheel-sep { font-size: 1.6rem; font-weight: 700; color: var(--text-dim); }
-.wheel-highlight {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  height: 40px;
-  border-top: 1px solid var(--card-border-glass);
-  border-bottom: 1px solid var(--card-border-glass);
-  pointer-events: none;
-  z-index: -1;
-}
-
-.timer-ring-wrap {
-  position: relative;
-  width: min(240px, 62vw);
-  height: min(240px, 62vw);
-  margin: 6px auto 2px;
-}
-.timer-ring { width: 100%; height: 100%; transform: rotate(-90deg); }
-.timer-ring-track {
-  fill: none;
-  stroke: rgba(20, 20, 30, 0.07);
-  stroke-width: 14;
-}
-.timer-ring-progress {
-  fill: none;
-  stroke: var(--accent);
-  stroke-width: 14;
-  stroke-linecap: round;
-  stroke-dasharray: 659.73;
-  stroke-dashoffset: 659.73;
-  transition: stroke-dashoffset .25s linear, stroke .3s var(--ease);
-  filter: drop-shadow(0 0 10px var(--accent-glow));
-}
-.timer-ring-progress.finished {
-  stroke: var(--danger);
-  filter: drop-shadow(0 0 12px rgba(220, 38, 60, 0.6));
-  animation: ring-flash .5s ease-in-out 4;
-}
-.timer-ring-center {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-}
-.timer-ring-label {
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--text-dim);
+.wheel-item.active { color: var(--ink); font-size: 1em; }
+.wheel-sep {
+  font-family: var(--font-display);
+  font-size: var(--timer-num-size);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--ink);
 }
 .timer-display {
   display: inline-flex;
-  align-items: flex-start;
+  align-items: center;
+  justify-content: center;
   gap: 4px;
-  font-size: 2.7rem;
-  font-weight: 700;
+  height: calc(var(--timer-num-size) * 1.3);
+  line-height: calc(var(--timer-num-size) * 1.3);
+  font-family: var(--font-display);
+  font-size: var(--timer-num-size);
+  font-weight: 800;
   letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
-  color: var(--text);
+  color: var(--ink);
 }
 .timer-display-ms {
   font-size: 0.34em;
@@ -801,24 +924,70 @@ input[type="number"].rm-big-input {
   color: var(--text-dim);
   margin-top: 0.2em;
 }
-.timer-display.running { color: var(--accent); animation: timer-pulse 1s ease-in-out infinite; }
+.timer-display.running { animation: timer-pulse 1s ease-in-out infinite; }
 .timer-display.finished { animation: timer-flash .5s ease-in-out 4; }
 @keyframes timer-pulse {
   0%, 100% { opacity: 1; }
-  50% { opacity: 0.75; }
+  50% { opacity: 0.55; }
 }
 @keyframes timer-flash {
-  0%, 100% { color: var(--text); }
+  0%, 100% { color: var(--ink); }
   50% { color: var(--danger); }
 }
-@keyframes ring-flash {
-  0%, 100% { stroke: var(--danger); }
-  50% { stroke: var(--accent); }
+
+.timer-controls { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.timer-main-btn { min-width: 190px; margin-top: 0; }
+.timer-controls .icon-btn { width: 40px; height: 40px; }
+
+/* Cuenta atrás a pantalla completa antes de arrancar el timer: negro, texto naranja */
+.countdown-intro {
+  position: fixed;
+  inset: 0;
+  background: var(--ink);
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
 }
-.timer-controls { display: flex; gap: 10px; width: 100%; }
-.timer-controls .btn { margin-top: 0; }
+.countdown-intro-text {
+  font-family: var(--font-display);
+  font-weight: 700;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--accent);
+  font-size: clamp(2.4rem, 14vw, 5.5rem);
+  line-height: 1.05;
+}
+.countdown-intro-text.pop { animation: countdown-pop .5s cubic-bezier(0.16, 1, 0.3, 1); }
+@keyframes countdown-pop {
+  0% { opacity: 0; transform: scale(0.55); }
+  22% { opacity: 1; transform: scale(1.12); }
+  38% { transform: scale(1); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.save-success-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 310;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  background: rgba(20, 18, 15, 0.55);
+  opacity: 0;
+  transition: opacity .2s var(--ease);
+}
+.save-success-overlay.show { opacity: 1; }
+.save-check-ring, .save-check-mark { stroke: var(--accent); }
+.save-check-ring { stroke-dasharray: 277; stroke-dashoffset: 277; }
+.save-check-mark { stroke-dasharray: 64; stroke-dashoffset: 64; }
+.save-success-overlay.show .save-check-ring { animation: save-ring-draw .45s var(--ease) forwards; }
+.save-success-overlay.show .save-check-mark { animation: save-mark-draw .3s var(--ease) forwards .4s; }
+@keyframes save-ring-draw { to { stroke-dashoffset: 0; } }
+@keyframes save-mark-draw { to { stroke-dashoffset: 0; } }
 
 @media (prefers-reduced-motion: reduce) {
   * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
-  body::before { animation: none; }
 }

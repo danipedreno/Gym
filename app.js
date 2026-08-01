@@ -73,7 +73,7 @@ const CATALOG = {
 const EXERCISE_ALIASES = {
   'Kettlebell Deadlift': 'peso muerto',
   'Kettlebell Single-Leg Deadlift': 'peso muerto a una pierna',
-  'Kettlebell Overhead Press': 'press militar press de hombros',
+  'Kettlebell Overhead Press': 'press militar press de hombros military press',
   'Kettlebell Clean': 'cargada',
   'Kettlebell Clean and Press': 'cargada y press',
   'Kettlebell Clean and Jerk': 'cargada y envion dos tiempos',
@@ -116,7 +116,7 @@ const EXERCISE_ALIASES = {
   'Barbell Deadlift': 'peso muerto',
   'Barbell Sumo Deadlift': 'peso muerto sumo',
   'Barbell Bench Press': 'press banca',
-  'Barbell Overhead Press': 'press militar press de hombros',
+  'Barbell Overhead Press': 'press militar press de hombros military press',
   'Barbell Push Press': 'empuje de pie',
   'Barbell Bent-Over Row': 'remo inclinado remo',
   'Barbell Clean': 'cargada',
@@ -283,27 +283,47 @@ function calcPercentages(rm, equipment) {
 let currentEquipment = 'kettlebell';
 let selectedExercise = null;
 
-// Buscador combobox reutilizable: input de texto + lista de resultados filtrados,
-// con una fila para añadir el término escrito como ejercicio nuevo si no existe.
+// Buscador tipo rueda: input de texto + lista scrollable con TODOS los
+// ejercicios del material actual (o los que coincidan con lo escrito), con
+// scroll-snap y el ítem central resaltado como guía; tocar cualquiera lo elige
+// sin tener que centrarlo. Incluye una fila para añadir el término escrito
+// como ejercicio nuevo si no existe.
 function wireExerciseSearch({ inputId, resultsId, getEquipment, onSelect }) {
   const input = document.getElementById(inputId);
   const results = document.getElementById(resultsId);
+  let rafPending = false;
+
+  function updateActiveRow() {
+    rafPending = false;
+    const rows = results.querySelectorAll('.search-result:not(.search-result-add)');
+    if (!rows.length) return;
+    const containerRect = results.getBoundingClientRect();
+    const centerY = containerRect.top + containerRect.height / 2;
+    let closest = null;
+    let closestDist = Infinity;
+    rows.forEach((row) => {
+      const r = row.getBoundingClientRect();
+      const dist = Math.abs((r.top + r.height / 2) - centerY);
+      if (dist < closestDist) { closestDist = dist; closest = row; }
+    });
+    rows.forEach((row) => row.classList.toggle('active', row === closest));
+  }
 
   function render(query) {
     const equipment = getEquipment();
     const list = getExerciseList(equipment).filter((name) => matchesQuery(name, query));
     results.innerHTML = '';
 
-    list.slice(0, 8).forEach((name) => {
+    list.forEach((name) => {
       const row = document.createElement('button');
       row.type = 'button';
       row.className = 'search-result';
       row.textContent = name;
       row.addEventListener('mousedown', (e) => e.preventDefault()); // evita perder el foco antes del click
       row.addEventListener('click', () => {
-        // El input se vacía (no se rellena con lo elegido) para poder buscar de nuevo
-        // sin tener que borrar nada; lo elegido se muestra en otro sitio (ver onSelect).
-        input.value = '';
+        // El nombre elegido se queda en el propio input (donde se buscó), en vez
+        // de moverse a otro sitio: así el usuario no pierde de vista qué escribió.
+        input.value = name;
         results.classList.add('hidden');
         onSelect(name);
       });
@@ -319,7 +339,7 @@ function wireExerciseSearch({ inputId, resultsId, getEquipment, onSelect }) {
       addRow.addEventListener('mousedown', (e) => e.preventDefault());
       addRow.addEventListener('click', () => {
         addCustomExercise(equipment, trimmed);
-        input.value = '';
+        input.value = trimmed;
         results.classList.add('hidden');
         onSelect(trimmed);
       });
@@ -327,10 +347,23 @@ function wireExerciseSearch({ inputId, resultsId, getEquipment, onSelect }) {
     }
 
     results.classList.toggle('hidden', list.length === 0 && !trimmed);
+    results.scrollTop = 0;
+    updateActiveRow();
   }
 
+  results.addEventListener('scroll', () => {
+    if (rafPending) return;
+    rafPending = true;
+    requestAnimationFrame(updateActiveRow);
+  });
+
   input.addEventListener('input', () => render(input.value));
-  input.addEventListener('focus', () => render(input.value));
+  input.addEventListener('focus', () => {
+    // Si ya hay un ejercicio elegido, seleccionar el texto entero para que
+    // escribir de nuevo lo sustituya directo, sin tener que borrarlo a mano.
+    input.select();
+    render(input.value);
+  });
   input.addEventListener('blur', () => {
     setTimeout(() => results.classList.add('hidden'), 150);
   });
@@ -351,7 +384,7 @@ function resetRmEntry() {
   rmInputDirty = false;
   const rmInput = document.getElementById('rm-input');
   rmInput.value = '';
-  document.getElementById('rm-selected-exercise').textContent = 'Elige un ejercicio abajo';
+  document.getElementById('exercise-search').value = '';
   document.getElementById('rm-updated-hint').textContent = '';
   document.getElementById('rm-error-hint').classList.add('hidden');
 }
@@ -362,7 +395,6 @@ function refreshRmField() {
   const stored = getRm(currentEquipment, exercise);
   const rmInput = document.getElementById('rm-input');
   const hint = document.getElementById('rm-updated-hint');
-  document.getElementById('rm-selected-exercise').textContent = exercise;
   document.getElementById('rm-error-hint').classList.add('hidden');
   if (stored) {
     if (!rmInputDirty) rmInput.value = stored.rm;
@@ -372,6 +404,22 @@ function refreshRmField() {
     if (!rmInputDirty) rmInput.value = '';
     hint.textContent = 'Aún no has guardado un RM para este ejercicio.';
   }
+}
+
+// Confirmación de guardado: solo un check animado a pantalla completa, sin
+// texto. classList.remove+reflow+add para que reinicie la animación si se
+// guarda otra vez mientras el anterior check todavía se estaba desvaneciendo.
+let saveSuccessTimer = null;
+function showSaveSuccess() {
+  const overlay = document.getElementById('save-success-overlay');
+  clearTimeout(saveSuccessTimer);
+  overlay.classList.remove('hidden', 'show');
+  void overlay.offsetWidth;
+  overlay.classList.add('show');
+  saveSuccessTimer = setTimeout(() => {
+    overlay.classList.remove('show');
+    setTimeout(() => overlay.classList.add('hidden'), 200);
+  }, 1100);
 }
 
 // Reutilizable: se usa tanto en Registrar (ya no) como en el detalle de Mis RMs.
@@ -406,16 +454,15 @@ function renderPercentGrid(rm, equipment, gridElId) {
 
 function onEquipmentChange(equipment) {
   currentEquipment = equipment;
-  document.querySelectorAll('#equipment-selector .seg-btn').forEach((btn) => {
+  document.querySelectorAll('#equipment-selector .material-btn').forEach((btn) => {
     btn.classList.toggle('active', btn.dataset.equipment === equipment);
   });
-  document.getElementById('exercise-search').value = '';
   document.getElementById('exercise-results').classList.add('hidden');
   resetRmEntry();
 }
 
 function initRegistrarTab() {
-  document.querySelectorAll('#equipment-selector .seg-btn').forEach((btn) => {
+  document.querySelectorAll('#equipment-selector .material-btn').forEach((btn) => {
     btn.addEventListener('click', () => onEquipmentChange(btn.dataset.equipment));
   });
 
@@ -456,10 +503,7 @@ function initRegistrarTab() {
     saveRm(currentEquipment, exercise, value);
     rmInputDirty = false;
     refreshRmField();
-
-    const toast = document.getElementById('rm-saved-toast');
-    toast.classList.remove('hidden');
-    setTimeout(() => toast.classList.add('hidden'), 1800);
+    showSaveSuccess();
   });
 
   resetRmEntry();
@@ -489,7 +533,8 @@ function toggleItemExpand(item) {
 }
 
 // ===== Tab: Mis RMs (pantalla estrella, flujo de buscador) =====
-let rmsFilterEquipment = 'all';
+// Filtro de material multi-selección (OR): con todos activos o ninguno, se ve todo.
+let rmsFilterEquipment = new Set(['kettlebell', 'dumbbell', 'barbell']);
 let rmsDetailEquipment = null;
 let rmsDetailExercise = null;
 
@@ -543,7 +588,7 @@ function renderRmsSearchResults(query) {
   const allRms = getRms();
 
   const matches = Object.values(allRms)
-    .filter((data) => rmsFilterEquipment === 'all' || data.equipment === rmsFilterEquipment)
+    .filter((data) => rmsFilterEquipment.size === 0 || rmsFilterEquipment.has(data.equipment))
     .filter((data) => matchesQuery(data.exercise, query))
     .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
 
@@ -551,7 +596,7 @@ function renderRmsSearchResults(query) {
   matches.slice(0, 15).forEach((data) => {
     const row = document.createElement('button');
     row.type = 'button';
-    row.className = 'search-result rm-list-row';
+    row.className = 'rm-list-row';
     // Resumen rápido de todas las franjas de porcentaje, para no tener que entrar
     // al detalle solo para ver los pesos de referencia.
     const topPercents = calcPercentages(data.rm, data.equipment);
@@ -570,7 +615,6 @@ function renderRmsSearchResults(query) {
         <div class="rm-list-meta">${metaCols}</div>
         <div class="rm-list-value">${data.rm} kg</div>
       </div>
-      <span class="rm-list-arrow"><svg class="icon"><use href="#icon-chevron"/></svg></span>
     `;
     row.addEventListener('mousedown', (e) => e.preventDefault());
     row.addEventListener('click', () => {
@@ -621,12 +665,11 @@ function closeRmEditModal() {
 }
 
 function initRmsTab() {
-  document.querySelectorAll('#rms-filter-equipment .seg-btn').forEach((btn) => {
+  document.querySelectorAll('#rms-filter-equipment .material-circle-btn').forEach((btn) => {
     btn.addEventListener('click', () => {
-      rmsFilterEquipment = btn.dataset.equipment;
-      document.querySelectorAll('#rms-filter-equipment .seg-btn').forEach((b) =>
-        b.classList.toggle('active', b.dataset.equipment === rmsFilterEquipment)
-      );
+      const equipment = btn.dataset.equipment;
+      if (rmsFilterEquipment.has(equipment)) rmsFilterEquipment.delete(equipment); else rmsFilterEquipment.add(equipment);
+      btn.classList.toggle('active', rmsFilterEquipment.has(equipment));
       renderRmsSearchResults(document.getElementById('rms-search').value);
     });
   });
@@ -660,78 +703,171 @@ function initRmsTab() {
 }
 
 // ===== Tab: WOD Heroes =====
-// Pesos y distancias convertidos a kg/km/m a partir de los WOD Hero oficiales
-// (fuente: https://anabelavila.com/crossfit/wods/heroes/).
+// 25 WODs para entrenar en casa, sin material
+// (fuente: https://www.zonawod.com/crossfit-en-casa-25-wods-mejorar-fisico/).
 const WOD_HEROES = [
   {
-    name: 'JT',
-    format: 'Por tiempo · 21-15-9',
-    movements: ['Flexiones de pino (HSPU)', 'Fondos en anillas', 'Flexiones'],
+    name: '600 Reps',
+    format: '2 rondas',
+    movements: ['100 dobles saltos de comba', '80 sentadillas al aire', '60 flexiones', '40 burpees', '20 zancadas con peso'],
   },
   {
-    name: 'Michael',
-    format: '3 rondas por tiempo',
-    movements: ['Carrera 800m', '50 extensiones lumbares', '50 abdominales'],
+    name: 'Muerte por Flexiones',
+    format: 'E2MOM',
+    movements: ['6 flexiones (suben 2 cada ronda)', '30 dobles saltos de comba'],
   },
   {
-    name: 'Murph',
-    format: 'Por tiempo (chaleco opcional 9kg)',
-    movements: ['Carrera 1.6km', '100 dominadas', '200 flexiones', '300 sentadillas', 'Carrera 1.6km'],
+    name: 'AMRAP 15',
+    format: 'AMRAP 15 minutos',
+    movements: ['5 HSPU', '10 burpees', '15 abdominales', '20 zancadas'],
   },
   {
-    name: 'Chad',
+    name: '150 Sentadillas',
     format: 'Por tiempo',
-    movements: ['1000 step-ups (cajón 50cm, con 20kg)'],
+    movements: ['150 sentadillas al aire', '7 burpees cada minuto'],
   },
   {
-    name: 'Daniel',
+    name: 'Chipper Casero',
+    format: 'Acumulativo',
+    movements: ['30 dobles saltos / 60 jumping jacks', 'HSPU estricto', 'Flexiones soltando manos', 'Burpees', 'Thrusters', 'Sentadillas a una pierna', 'Abdominales en V', 'Zancadas alternas', 'Sentadillas con salto', 'Devil press'],
+  },
+  {
+    name: 'Bárbara en Casa',
+    format: '5 rondas (descanso 3\' entre rondas)',
+    movements: ['20 remos invertidos', '30 flexiones', '40 abdominales', '50 sentadillas al aire'],
+  },
+  {
+    name: 'New',
+    format: 'Por tiempo · 6 rondas',
+    movements: ['60 dobles saltos de comba', '30 zancadas alternas', '15 burpees'],
+  },
+  {
+    name: 'AMRAP 18',
+    format: 'AMRAP 18 minutos',
+    movements: ['50 dobles saltos de comba', '25 fondos en silla', '50 dobles saltos de comba', '25 zancadas alternas con salto', '7 burpees cada 3 minutos'],
+  },
+  {
+    name: 'Escalera x2',
+    format: '2 rondas, escalera 10-1',
+    movements: ['10-9-8-7-6-5-4-3-2-1 flexiones soltando manos', '10-9-8-7-6-5-4-3-2-1 abdominales en V', '15 sentadillas al aire entre rondas'],
+  },
+  {
+    name: 'EMOM 21',
+    format: 'EMOM 21 minutos',
+    movements: ['8 HSPU', '25 sentadillas al aire', '40 shoulder taps'],
+  },
+  {
+    name: 'Por Parejas',
+    format: 'Por parejas',
+    movements: ['Formato a dúo, alternando series (ver detalle en la fuente original)'],
+  },
+  {
+    name: 'Chipper de Dobles',
     format: 'Por tiempo',
-    movements: ['50 dominadas', 'Carrera 400m', '21 thrusters 43kg', 'Carrera 800m', '21 thrusters 43kg', 'Carrera 400m', '50 dominadas'],
+    movements: ['50 double unders', '40 flexiones en diamante', '50 double unders', '30 burpees', '50 double unders', '20 V-ups', '50 double unders', '10 escalada de pared', '50 double unders'],
   },
   {
-    name: 'Josh',
-    format: 'Por tiempo · 21-15-9',
-    movements: ['Sentadilla overhead 43kg', 'Dominadas (42-30-18)'],
+    name: 'Core WOD',
+    format: 'Series (plancha 20" si se rompe)',
+    movements: ['50 hollow rock', '50 arch rock', '50 straight leg sit up'],
   },
   {
-    name: 'Jason',
-    format: 'Por tiempo · 100-75-50-25',
-    movements: ['Sentadillas', 'Muscle-ups (5-10-15-20)'],
-  },
-  {
-    name: 'Badger',
-    format: '3 rondas por tiempo',
-    movements: ['30 squat clean 43kg', '30 dominadas', 'Carrera 800m'],
-  },
-  {
-    name: 'Joshie',
-    format: '3 rondas por tiempo, cada brazo',
-    movements: ['21 dumbbell snatch 18kg (brazo derecho)', '21 L pull-ups', 'Repetir con el brazo izquierdo'],
-  },
-  {
-    name: 'Nate',
+    name: 'AMRAP 20',
     format: 'AMRAP 20 minutos',
-    movements: ['2 muscle-ups', '4 flexiones de pino (HSPU)', '8 kettlebell swings 32kg'],
+    movements: ['20 sentadillas al aire', '20 abdominales', '10/7 HSPU'],
   },
   {
-    name: 'Randy',
+    name: 'Descendente HSPU',
     format: 'Por tiempo',
-    movements: ['75 power snatch 34kg'],
+    movements: ['100 sentadillas al aire + 5 HSPU', '75 sentadillas al aire + 10 HSPU', '50 sentadillas al aire + 15 HSPU', '25 sentadillas al aire + 20 HSPU'],
   },
   {
-    name: 'Tommy V',
-    format: 'Por tiempo · 21-15-9',
-    movements: ['Thrusters 52kg', 'Subidas de cuerda 4.5m (12-9-6)'],
+    name: 'Double AMRAP',
+    format: '2 AMRAP de 7\' (descanso 2\')',
+    movements: ['AMRAP 7\': 30 saltos dobles + 10 burpees', 'Descanso 2 minutos', 'AMRAP 7\': 30 saltos dobles + 10 flexiones'],
   },
   {
-    name: 'Griff',
+    name: 'Larguest Lunge',
+    format: 'Series (10 burpees + 10 sentadillas con salto entre series)',
+    movements: ['20 zancadas alternas', '40 zancadas alternas', '60 zancadas alternas', '80 zancadas alternas', '100 zancadas alternas'],
+  },
+  {
+    name: 'Fat Amy',
     format: 'Por tiempo',
-    movements: ['Carrera 800m', 'Carrera 400m hacia atrás', 'Carrera 800m', 'Carrera 400m hacia atrás'],
+    movements: ['Detalle no especificado en la fuente original'],
   },
   {
-    name: 'DT',
-    format: '5 rondas por tiempo',
-    movements: ['12 peso muerto 70kg', '9 cargada colgada (hang power clean) 70kg', '6 push jerk 70kg'],
+    name: 'EMOM 30',
+    format: 'EMOM 30 minutos',
+    movements: ['45" posición de pino', '25 sentadillas al aire', '45" toques al hombro en plancha', '25 puente de glúteos', 'Descanso'],
+  },
+  {
+    name: 'Creciente',
+    format: 'Por tiempo',
+    movements: ['10 HSPU + 15 burpees', '20 flexiones + 15 burpees', '30 abdominales + 15 burpees', '40 zancadas + 15 burpees', '50 sentadillas al aire + 15 burpees'],
+  },
+  {
+    name: 'Open 21.4 Remix',
+    format: 'AMRAP 12 minutos',
+    movements: ['20 sentadillas a una pierna alternas', '20 shoulder taps', '20 hand release push-ups'],
+  },
+  {
+    name: 'Escalera Doble Unders',
+    format: 'Por tiempo',
+    movements: ['100 dobles saltos + 50 sentadillas', '80 dobles saltos + 40 sentadillas', '60 dobles saltos + 30 sentadillas', '40 dobles saltos + 20 sentadillas', '20 dobles saltos + 10 sentadillas'],
+  },
+  {
+    name: '4 Rounds',
+    format: '4 rondas',
+    movements: ['Carrera 400m', '16 flexiones', '20 zancadas inversas', '12 burpees'],
+  },
+  {
+    name: 'GTOH',
+    format: '5 rondas',
+    movements: ['15 ground to overhead', '30 step ups'],
+  },
+  {
+    name: 'AMRAP 13',
+    format: 'AMRAP 13 minutos',
+    movements: ['45 dobles saltos de comba', '30 sentadillas al aire', '15 abdominales en V'],
+  },
+  {
+    name: 'Incredible Hulk',
+    format: 'AMRAP 20 minutos',
+    movements: [
+      '5 pesos muertos (52/34 kg)',
+      '5 cargadas colgantes (52/34 kg)',
+      '5 sentadillas frontales (52/34 kg)',
+      '5 push press (52/34 kg)',
+      '5 sentadillas traseras (52/34 kg)',
+    ],
+  },
+  {
+    name: 'Jack',
+    format: 'AMRAP 20 minutos',
+    movements: ['10 push press (52/38 kg)', '10 swings con kettlebell (24/16 kg)', '10 saltos al cajón (60/50 cm)'],
+  },
+  {
+    name: 'Christina',
+    format: 'AMRAP 20 minutos',
+    movements: [
+      '9 dominadas',
+      '9 cargadas en sentadilla (43/30 kg)',
+      '9 swings con kettlebell (25/16 kg)',
+      '9 toes-to-bar',
+      '9 push press (52/20 kg)',
+      '9 burpees',
+    ],
+  },
+  {
+    name: 'Optimus Prime',
+    format: 'AMRAP 7 minutos',
+    movements: ['Balón medicinal (9/6 kg): máximas repeticiones', 'Al final de cada minuto: 5 pesos muertos (100/70 kg)'],
+  },
+  {
+    name: 'Nicole',
+    format: 'AMRAP 20 minutos',
+    movements: ['Carrera 400m', 'Máximas dominadas sin soltarse (se repite el ciclo)'],
   },
 ];
 
@@ -902,11 +1038,18 @@ function calcBMI(weightKg, heightCm) {
   const h = heightCm / 100;
   return weightKg / (h * h);
 }
+// 5 tramos (no los 4 clásicos de la OMS) para que "Normal" quede justo en el
+// centro del indicador de puntos.
+const BMI_ZONES = ['Muy bajo peso', 'Bajo peso', 'Normal', 'Sobrepeso', 'Obesidad'];
+function bmiZoneIndex(bmi) {
+  if (bmi < 16) return 0;
+  if (bmi < 18.5) return 1;
+  if (bmi < 25) return 2;
+  if (bmi < 30) return 3;
+  return 4;
+}
 function bmiCategory(bmi) {
-  if (bmi < 18.5) return 'Bajo peso';
-  if (bmi < 25) return 'Normal';
-  if (bmi < 30) return 'Sobrepeso';
-  return 'Obesidad';
+  return BMI_ZONES[bmiZoneIndex(bmi)];
 }
 // Fórmula de Deurenberg (1991): estima el % de grasa corporal a partir del IMC, la edad y el sexo.
 // Es una aproximación (sin pliegues ni bioimpedancia), no un dato clínico.
@@ -928,7 +1071,8 @@ function refreshProfileSummary() {
   const summary = document.getElementById('profile-summary');
   if (profile) {
     const sexLabel = profile.sex === 'male' ? 'Hombre' : 'Mujer';
-    summary.textContent = `${sexLabel} · ${profile.age} años · ${profile.heightCm} cm · ${BUILD_LABELS[profile.build]} · ${FREQUENCY_LABELS[profile.frequency]}`;
+    const namePart = profile.name ? `${profile.name} · ` : '';
+    summary.textContent = `${namePart}${sexLabel} · ${profile.age} años · ${profile.heightCm} cm · ${BUILD_LABELS[profile.build]} · ${FREQUENCY_LABELS[profile.frequency]}`;
   } else {
     summary.textContent = 'Sin completar todavía. Hace falta para calcular tu composición corporal.';
   }
@@ -956,21 +1100,54 @@ function renderCompositionGrid() {
   const bodyFat = calcBodyFatPct(bmi, profile.age, profile.sex);
   const tbw = calcTBW(latest.weight, profile.heightCm, profile.age, profile.sex);
 
-  const tile = (label, value, sub, hero) => `
+  const tile = (icon, label, value, sub, hero, extra) => `
     <div class="pct-tile${hero ? ' hero' : ''}">
-      <div class="pct-tile-label">${label}</div>
+      <div class="pct-tile-label"><svg class="icon"><use href="#icon-${icon}"/></svg> ${label}</div>
       <div class="pct-tile-value">${value}</div>
       ${sub ? `<div class="pct-tile-sub">${sub}</div>` : ''}
+      ${extra || ''}
     </div>
   `;
 
+  // 5 puntos en vez de una barra por tramos: el activo se agranda, y la
+  // categoría va al lado de los puntos (no encima, como una barra normal).
+  const bmiGaugeDots = (val) => {
+    const activeIdx = bmiZoneIndex(val);
+    const dots = BMI_ZONES
+      .map((_, i) => `<span class="bmi-gauge-dot${i === activeIdx ? ' active' : ''}"></span>`)
+      .join('');
+    return `
+      <div class="bmi-gauge-row">
+        <div class="bmi-gauge-dots">${dots}</div>
+        <span class="bmi-gauge-label">${BMI_ZONES[activeIdx]}</span>
+      </div>
+    `;
+  };
+
   grid.innerHTML =
-    tile('IMC', bmi.toFixed(1), bmiCategory(bmi), true) +
-    tile('% Grasa (estimado)', `${bodyFat.toFixed(1)}%`, 'Fórmula de Deurenberg') +
-    tile('Agua corporal (estimado)', `${tbw.toFixed(1)} L`, 'Fórmula de Watson');
+    tile('scale', 'IMC', bmi.toFixed(1), null, true, bmiGaugeDots(bmi)) +
+    tile('chart', '% Grasa', `${bodyFat.toFixed(1)}%`, 'Fórmula de Deurenberg') +
+    tile('droplet', 'Agua', `${tbw.toFixed(1)} L`, 'Fórmula de Watson');
 }
 
-function initProfileForm() {
+// El perfil se edita en un popup abierto desde el icono de la cabecera,
+// visible en cualquier pestaña (no solo en Peso).
+function openProfileModal() {
+  const profile = getProfile();
+  document.getElementById('profile-name').value = profile?.name || '';
+  document.getElementById('profile-age').value = profile?.age || '';
+  document.getElementById('profile-height').value = profile?.heightCm || '';
+  document.querySelectorAll('#profile-sex .seg-btn').forEach((b) => b.classList.toggle('active', b.dataset.sex === (profile?.sex || 'male')));
+  document.querySelectorAll('#profile-build .seg-btn').forEach((b) => b.classList.toggle('active', b.dataset.build === (profile?.build || 'medium')));
+  document.querySelectorAll('#profile-frequency .seg-btn').forEach((b) => b.classList.toggle('active', b.dataset.frequency === (profile?.frequency || '3-4')));
+  document.getElementById('profile-error-hint').classList.add('hidden');
+  document.getElementById('profile-modal').classList.remove('hidden');
+}
+function closeProfileModal() {
+  document.getElementById('profile-modal').classList.add('hidden');
+}
+
+function initProfileModal() {
   ['profile-sex', 'profile-build', 'profile-frequency'].forEach((groupId) => {
     document.querySelectorAll(`#${groupId} .seg-btn`).forEach((btn) => {
       btn.addEventListener('click', () => {
@@ -979,22 +1156,14 @@ function initProfileForm() {
     });
   });
 
-  document.getElementById('edit-profile-btn').addEventListener('click', () => {
-    document.getElementById('profile-form').classList.toggle('hidden');
+  document.getElementById('profile-btn').addEventListener('click', openProfileModal);
+  document.getElementById('profile-cancel-btn').addEventListener('click', closeProfileModal);
+  document.getElementById('profile-modal').addEventListener('click', (e) => {
+    if (e.target.id === 'profile-modal') closeProfileModal();
   });
 
-  const profile = getProfile();
-  if (profile) {
-    document.getElementById('profile-age').value = profile.age;
-    document.getElementById('profile-height').value = profile.heightCm;
-    document.querySelectorAll('#profile-sex .seg-btn').forEach((b) => b.classList.toggle('active', b.dataset.sex === profile.sex));
-    document.querySelectorAll('#profile-build .seg-btn').forEach((b) => b.classList.toggle('active', b.dataset.build === profile.build));
-    document.querySelectorAll('#profile-frequency .seg-btn').forEach((b) => b.classList.toggle('active', b.dataset.frequency === profile.frequency));
-  } else {
-    document.getElementById('profile-form').classList.remove('hidden');
-  }
-
   document.getElementById('save-profile-btn').addEventListener('click', () => {
+    const name = document.getElementById('profile-name').value.trim();
     const age = parseInt(document.getElementById('profile-age').value, 10);
     const heightCm = parseFloat(document.getElementById('profile-height').value);
     const sex = document.querySelector('#profile-sex .seg-btn.active')?.dataset.sex;
@@ -1008,31 +1177,31 @@ function initProfileForm() {
       return;
     }
     errorHint.classList.add('hidden');
-    saveProfile({ age, heightCm, sex, build, frequency });
+    saveProfile({ name, age, heightCm, sex, build, frequency });
     refreshProfileSummary();
-    document.getElementById('profile-form').classList.add('hidden');
     renderCompositionGrid();
+    closeProfileModal();
   });
 
   refreshProfileSummary();
 }
 
-function shiftDateInputBy(days) {
-  const dateInput = document.getElementById('bodyweight-date');
-  const current = dateInput.value ? new Date(`${dateInput.value}T00:00:00`) : new Date();
-  current.setDate(current.getDate() + days);
-  dateInput.value = current.toISOString().slice(0, 10);
+function todayIso() {
+  return new Date().toISOString().slice(0, 10);
 }
 
 function initPesoTab() {
-  initProfileForm();
+  refreshProfileSummary();
 
-  document.getElementById('bodyweight-date').value = new Date().toISOString().slice(0, 10);
-  document.getElementById('bodyweight-date-prev').addEventListener('click', () => shiftDateInputBy(-1));
-  document.getElementById('bodyweight-date-next').addEventListener('click', () => shiftDateInputBy(1));
-  document.getElementById('bodyweight-date-today').addEventListener('click', () => {
-    document.getElementById('bodyweight-date').value = new Date().toISOString().slice(0, 10);
-  });
+  const dateInput = document.getElementById('bodyweight-date');
+  dateInput.value = todayIso();
+
+  // Se prellena con el último peso apuntado: normalmente casi no cambia de un
+  // día para otro, así que rara vez hay que escribirlo entero de cero.
+  const history = getBodyWeightHistory();
+  if (history.length) {
+    document.getElementById('bodyweight-input').value = history[history.length - 1].weight;
+  }
 
   document.getElementById('bodyweight-input').addEventListener('input', () => {
     document.getElementById('bodyweight-error-hint').classList.add('hidden');
@@ -1040,7 +1209,6 @@ function initPesoTab() {
 
   document.getElementById('save-bodyweight-btn').addEventListener('click', () => {
     const input = document.getElementById('bodyweight-input');
-    const dateInput = document.getElementById('bodyweight-date');
     const errorHint = document.getElementById('bodyweight-error-hint');
     const value = parseFloat(input.value);
 
@@ -1058,10 +1226,12 @@ function initPesoTab() {
 
     errorHint.classList.add('hidden');
     addBodyWeight(value, dateInput.value);
-    input.value = '';
-    dateInput.value = new Date().toISOString().slice(0, 10);
+    // No se vacía: el peso recién guardado sigue siendo "el último", así que
+    // se queda como referencia para la próxima vez.
+    dateInput.value = todayIso();
     renderBodyWeightChart();
     renderCompositionGrid();
+    showSaveSuccess();
   });
 
   renderBodyWeightChart();
@@ -1110,39 +1280,31 @@ function playBeep() {
   }
 }
 
-const TIMER_RING_CIRCUMFERENCE = 659.73;
-
-// El anillo se va rellenando a medida que pasa el tiempo (no al revés),
-// para que se sienta como una barra de progreso hacia la meta, no una cuenta que se vacía.
-function updateTimerRing(progress) {
-  const ring = document.getElementById('timer-ring-progress');
-  const clamped = Math.min(1, Math.max(0, progress));
-  ring.style.strokeDashoffset = String(TIMER_RING_CIRCUMFERENCE * (1 - clamped));
-}
-
 function updateTimerDisplay() {
   const mainEl = document.getElementById('timer-display-main');
   const msEl = document.getElementById('timer-display-ms');
-  const label = document.getElementById('timer-ring-label');
   if (timerMode === 'countdown') {
+    // timerRemainingMs > 0 cubre tanto "corriendo" como "en pausa"; solo cuando
+    // vale 0 (nunca empezado, o terminado) se muestra la duración elegida entera.
     const totalMs = timerDurationSec * 1000;
-    const remaining = timerRunning ? timerRemainingMs : totalMs;
+    const remaining = timerRemainingMs > 0 ? timerRemainingMs : totalMs;
     const parts = fmtClockParts(remaining);
     mainEl.textContent = parts.main;
     msEl.textContent = parts.centis;
-    label.textContent = 'Restante';
-    updateTimerRing(totalMs > 0 ? 1 - remaining / totalMs : 0);
   } else {
     const parts = fmtClockParts(timerElapsedMs);
     mainEl.textContent = parts.main;
     msEl.textContent = parts.centis;
-    label.textContent = 'Transcurrido';
-    updateTimerRing((timerElapsedMs % 60000) / 60000);
   }
 }
 
+// El selector de tiempo vive dentro del propio círculo: se ve la rueda solo
+// mientras no hay ninguna cuenta atrás en marcha ni en pausa (timerRemainingMs
+// a 0); en cuanto corre o queda pausada a mitad, se ve el reloj congelado.
 function updateSetupVisibility() {
-  document.getElementById('countdown-setup').classList.toggle('hidden', timerMode === 'stopwatch' || timerRunning);
+  const showPicker = timerMode === 'countdown' && !timerRunning && timerRemainingMs <= 0;
+  document.getElementById('countdown-setup').classList.toggle('hidden', !showPicker);
+  document.getElementById('timer-display').classList.toggle('hidden', showPicker);
 }
 
 function timerTick() {
@@ -1157,12 +1319,9 @@ function timerTick() {
       stopTimer();
       playBeep();
       const display = document.getElementById('timer-display');
-      const ring = document.getElementById('timer-ring-progress');
       display.classList.add('finished');
-      ring.classList.add('finished');
       setTimeout(() => {
         display.classList.remove('finished');
-        ring.classList.remove('finished');
       }, 1800);
       return;
     }
@@ -1171,6 +1330,38 @@ function timerTick() {
     updateTimerDisplay();
   }
   timerRafId = requestAnimationFrame(timerTick);
+}
+
+// Cuenta atrás a pantalla completa antes de arrancar. Cada paso relanza la
+// animación desde cero quitando y volviendo a poner la clase (si no, con el
+// mismo texto no reinicia).
+function playCountdownIntro(onDone) {
+  const overlay = document.getElementById('countdown-intro');
+  const textEl = document.getElementById('countdown-intro-text');
+  const steps = [
+    { text: '3', duration: 700 },
+    { text: '2', duration: 700 },
+    { text: '1', duration: 700 },
+    { text: '¡Ya!', duration: 500 },
+  ];
+
+  overlay.classList.remove('hidden');
+  let i = 0;
+  function showStep() {
+    if (i >= steps.length) {
+      overlay.classList.add('hidden');
+      onDone();
+      return;
+    }
+    const step = steps[i];
+    textEl.textContent = step.text;
+    textEl.classList.remove('pop');
+    void textEl.offsetWidth;
+    textEl.classList.add('pop');
+    i++;
+    setTimeout(showStep, step.duration);
+  }
+  showStep();
 }
 
 function startTimer() {
@@ -1202,7 +1393,25 @@ function resetTimer() {
   updateTimerDisplay();
 }
 
-const WHEEL_ITEM_HEIGHT = 40;
+// La altura de fila depende de --timer-num-size (responsive, clamp con vw),
+// así que se mide en el DOM en vez de fijarla a un número: así nunca se
+// desincroniza del valor real que aplica el CSS en cada pantalla.
+let WHEEL_ITEM_HEIGHT = 36;
+
+function measureWheelItemHeight() {
+  const item = document.querySelector('.wheel-item');
+  if (item) WHEEL_ITEM_HEIGHT = item.getBoundingClientRect().height;
+}
+
+// La pestaña Timer puede no ser la activa al cargar la página (display: none),
+// así que medir en ese momento da 0. Se vuelve a medir y a reposicionar la
+// rueda cada vez que la pestaña se muestra de verdad.
+function resyncTimerWheels() {
+  measureWheelItemHeight();
+  if (!WHEEL_ITEM_HEIGHT) return;
+  scrollWheelTo('wheel-minutes', Math.floor(timerDurationSec / 60), false);
+  scrollWheelTo('wheel-seconds', timerDurationSec % 60, false);
+}
 
 function buildWheel(containerId, count, formatFn) {
   const col = document.getElementById(containerId);
@@ -1238,13 +1447,13 @@ function initWheelScroll(containerId, onSettled) {
 function initTimerTab() {
   buildWheel('wheel-minutes', 21, (v) => String(v).padStart(2, '0'));
   buildWheel('wheel-seconds', 60, (v) => String(v).padStart(2, '0'));
+  measureWheelItemHeight();
 
   let pickedMinutes = 0;
   let pickedSeconds = 30;
 
   function applyPicked() {
     timerDurationSec = pickedMinutes * 60 + pickedSeconds;
-    document.querySelectorAll('.chip[data-seconds]').forEach((c) => c.classList.remove('active'));
     updateTimerDisplay();
   }
 
@@ -1255,30 +1464,45 @@ function initTimerTab() {
   scrollWheelTo('wheel-seconds', 30, false);
   timerDurationSec = 30;
 
-  document.querySelectorAll('.chip[data-seconds]').forEach((chip) => {
-    chip.addEventListener('click', () => {
-      document.querySelectorAll('.chip[data-seconds]').forEach((c) => c.classList.remove('active'));
-      chip.classList.add('active');
-      const secs = parseInt(chip.dataset.seconds, 10);
-      pickedMinutes = Math.floor(secs / 60);
-      pickedSeconds = secs % 60;
-      timerDurationSec = secs;
-      scrollWheelTo('wheel-minutes', pickedMinutes, true);
-      scrollWheelTo('wheel-seconds', pickedSeconds, true);
-      updateTimerDisplay();
-    });
+  function setTimerMode(mode) {
+    if (timerMode === mode) return;
+    timerMode = mode;
+    document.querySelectorAll('#timer-mode-selector .timer-mode-label').forEach((b) => b.classList.toggle('active', b.dataset.mode === mode));
+    resetTimer();
+  }
+
+  document.querySelectorAll('#timer-mode-selector .timer-mode-label').forEach((btn) => {
+    btn.addEventListener('click', () => setTimerMode(btn.dataset.mode));
   });
 
-  document.querySelectorAll('#timer-mode-selector .seg-btn').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      timerMode = btn.dataset.mode;
-      document.querySelectorAll('#timer-mode-selector .seg-btn').forEach((b) => b.classList.toggle('active', b === btn));
-      resetTimer();
-    });
-  });
+  // Swipe horizontal sobre el timer para alternar countdown/cronómetro: el
+  // selector de arriba ya insinúa con transparencia que se puede deslizar.
+  const swipeArea = document.getElementById('timer-swipe-area');
+  let swipeStartX = null;
+  let swipeStartY = null;
+  swipeArea.addEventListener('touchstart', (e) => {
+    swipeStartX = e.touches[0].clientX;
+    swipeStartY = e.touches[0].clientY;
+  }, { passive: true });
+  swipeArea.addEventListener('touchend', (e) => {
+    if (swipeStartX === null) return;
+    const dx = e.changedTouches[0].clientX - swipeStartX;
+    const dy = e.changedTouches[0].clientY - swipeStartY;
+    swipeStartX = null;
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+      setTimerMode(timerMode === 'countdown' ? 'stopwatch' : 'countdown');
+    }
+  }, { passive: true });
 
   document.getElementById('timer-toggle-btn').addEventListener('click', () => {
-    if (timerRunning) stopTimer(); else startTimer();
+    if (timerRunning) {
+      stopTimer();
+      return;
+    }
+    // Reanudar tras una pausa no debe repetir la cuenta atrás: solo se muestra
+    // al arrancar de cero (nada corriendo todavía, o ya terminado).
+    const isResume = timerMode === 'countdown' ? timerRemainingMs > 0 : timerElapsedMs > 0;
+    if (isResume) startTimer(); else playCountdownIntro(startTimer);
   });
   document.getElementById('timer-reset-btn').addEventListener('click', resetTimer);
 
@@ -1297,6 +1521,7 @@ function initNav() {
       if (btn.dataset.tab === 'tab-rms') renderRmsSearchResults(document.getElementById('rms-search').value);
       if (btn.dataset.tab === 'tab-wods') renderWodList();
       if (btn.dataset.tab === 'tab-progreso') { renderBodyWeightChart(); renderCompositionGrid(); }
+      if (btn.dataset.tab === 'tab-timer') resyncTimerWheels();
     });
   });
 }
@@ -1304,6 +1529,7 @@ function initNav() {
 // ===== Init =====
 document.addEventListener('DOMContentLoaded', () => {
   initNav();
+  initProfileModal();
   initRegistrarTab();
   initRmsTab();
   initWodsTab();

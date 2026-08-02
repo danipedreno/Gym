@@ -956,9 +956,8 @@ input[type="date"].modal-date-input::-webkit-calendar-picker-indicator { cursor:
   z-index: 1;
   max-width: 82%;
 }
-/* Collage de formas por bloque: por debajo del contenido. Cada forma entra
-   por separado (ver .wod-illus-shape) — la animación de "cargar el bloque"
-   es del conjunto entrando en cascada, no un único fundido de golpe. */
+/* Emblema geométrico de fondo: arranca invisible y girado; al cargar el
+   bloque (.in-view vía JS) hace un spring/overshoot hacia su estado final. */
 .wod-block-illus {
   position: absolute;
   inset: 0;
@@ -966,35 +965,28 @@ input[type="date"].modal-date-input::-webkit-calendar-picker-indicator { cursor:
   height: 100%;
   pointer-events: none;
   z-index: 0;
-}
-.wod-illus-shape {
-  transform-box: fill-box;
-  transform-origin: center;
   opacity: 0;
-  transform: scale(0.35) translateY(30px) rotate(0deg);
+  transform: scale(0.68) rotate(-5deg);
+  transform-origin: 68% 76%;
 }
-/* Solo animan cuando el bloque entra en vista (JS añade/quita .in-view al
-   abrir la página o al deslizar a un bloque nuevo = "cargar"). --d y --rot
-   los fija cada forma en línea, así entran en cascada y cada una acaba en
-   su ángulo final, no todas a la vez ni todas a 0°. */
-.wod-block-illus.in-view .wod-illus-shape {
-  animation: wod-illus-shape-in .65s var(--ease) forwards;
-  animation-delay: var(--d, 0s);
+.wod-block-illus.in-view {
+  animation: wod-illus-in .9s cubic-bezier(.34,1.44,.64,1) forwards;
 }
-@keyframes wod-illus-shape-in {
-  from { opacity: 0; transform: scale(0.35) translateY(30px) rotate(0deg); }
-  to { opacity: 1; transform: scale(1) translateY(0) rotate(var(--rot, 0deg)); }
+@keyframes wod-illus-in {
+  from { opacity: 0; transform: scale(0.68) rotate(-5deg); }
+  to   { opacity: 1; transform: scale(1)    rotate(0deg);  }
 }
 
 /* Jerarquía dentro de cada bloque: icono+título(+cifra clave en la misma
    línea) > ejercicios, cada uno con su nota en línea aparte y más ligera. */
-.wod-block-head { display: flex; align-items: baseline; gap: 8px; margin-bottom: 16px; }
-.wod-block-head .icon { width: 22px; height: 22px; flex-shrink: 0; align-self: center; }
+/* Icono a la izquierda del título (como un bullet de la cabecera); el texto
+   del título y el texto de los items de la lista arrancan en el mismo x.
+   Icono 22px + gap 8px = 30px → padding-left del título y de la lista iguales. */
+.wod-block-head { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
+.wod-block-head .icon { width: 22px; height: 22px; flex-shrink: 0; }
 .wod-block-title { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.01em; line-height: 1.25; }
-/* La cifra clave (EMOM 6', AMRAP 15') va pegada al título, no en su propia
-   línea gigante: sigue destacando por el peso, no por el tamaño. */
 .wod-block-badge-inline { font-weight: 700; opacity: 0.85; }
-.wod-block-list { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 14px; font-size: 1rem; line-height: 1.4; }
+.wod-block-list { margin: 0; padding-left: 30px; display: flex; flex-direction: column; gap: 14px; font-size: 1rem; line-height: 1.4; }
 /* La nota que antes iba entre paréntesis o tras ":": misma línea, debajo,
    más ligera y algo más pequeña — no compite con el ejercicio en sí. */
 .wod-item-main { display: block; font-weight: 700; }

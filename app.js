@@ -817,28 +817,32 @@ function renderRoundsPills(rounds) {
 // código. Todas las formas se agrupan en el tercio inferior (y: 380-580)
 // para no pelearse con el texto, que empieza arriba.
 const WOD_ILLUSTRATIONS = {
-  // Calentamiento: cápsula + círculo + bloque, tonos cálidos sobre el teal.
+  // Calentamiento: roseta de 5 círculos superpuestos — ritmo y energía circular.
   warmup: `
-    <svg class="wod-block-illus" viewBox="0 0 300 600" aria-hidden="true">
-      <rect class="wod-illus-shape" style="--d:0s; --rot:-8deg" x="145" y="470" width="150" height="64" rx="32" fill="var(--yellow)" stroke="var(--ink)" stroke-width="3"/>
-      <circle class="wod-illus-shape" style="--d:.12s; --rot:0deg" cx="210" cy="400" r="50" fill="var(--pink)" stroke="var(--ink)" stroke-width="3"/>
-      <rect class="wod-illus-shape" style="--d:.24s; --rot:12deg" x="130" y="330" width="54" height="54" fill="var(--paper)" stroke="var(--ink)" stroke-width="3"/>
+    <svg class="wod-block-illus" viewBox="0 0 375 650" preserveAspectRatio="xMaxYMax slice" aria-hidden="true">
+      <circle cx="240" cy="440" r="88" fill="currentColor" fill-opacity="0.18"/>
+      <circle cx="288" cy="474" r="88" fill="currentColor" fill-opacity="0.18"/>
+      <circle cx="270" cy="531" r="88" fill="currentColor" fill-opacity="0.18"/>
+      <circle cx="210" cy="531" r="88" fill="currentColor" fill-opacity="0.18"/>
+      <circle cx="192" cy="474" r="88" fill="currentColor" fill-opacity="0.18"/>
     </svg>
   `,
-  // Fuerza: bloque grande + círculo + cápsula, masa sólida sobre el amarillo.
+  // Fuerza: tres triángulos superpuestos a 60° — joya facetada, solidez.
   strength: `
-    <svg class="wod-block-illus" viewBox="0 0 300 600" aria-hidden="true">
-      <rect class="wod-illus-shape" style="--d:0s; --rot:-6deg" x="160" y="450" width="120" height="120" fill="var(--navy)" stroke="var(--ink)" stroke-width="3"/>
-      <circle class="wod-illus-shape" style="--d:.12s; --rot:0deg" cx="240" cy="380" r="42" fill="var(--olive)" stroke="var(--ink)" stroke-width="3"/>
-      <rect class="wod-illus-shape" style="--d:.24s; --rot:8deg" x="140" y="320" width="130" height="46" rx="23" fill="var(--pink)" stroke="var(--ink)" stroke-width="3"/>
+    <svg class="wod-block-illus" viewBox="0 0 375 650" preserveAspectRatio="xMaxYMax slice" aria-hidden="true">
+      <polygon points="240,365 140,538 340,538" fill="currentColor" fill-opacity="0.18"/>
+      <polygon points="240,365 140,538 340,538" fill="currentColor" fill-opacity="0.18" transform="rotate(60 240 480)"/>
+      <polygon points="240,365 140,538 340,538" fill="currentColor" fill-opacity="0.18" transform="rotate(120 240 480)"/>
     </svg>
   `,
-  // WOD/AMRAP: flecha + círculo + cápsula, la más dinámica, sobre el navy.
+  // WOD: cuatro óvalos orbitales cruzados — átomo/energía en máxima intensidad.
   wod: `
-    <svg class="wod-block-illus" viewBox="0 0 300 600" aria-hidden="true">
-      <polygon class="wod-illus-shape" style="--d:0s; --rot:0deg" points="230,340 300,340 230,480" fill="var(--pink)" stroke="var(--ink)" stroke-width="3"/>
-      <circle class="wod-illus-shape" style="--d:.12s; --rot:0deg" cx="235" cy="500" r="46" fill="var(--sage)" stroke="var(--ink)" stroke-width="3"/>
-      <rect class="wod-illus-shape" style="--d:.24s; --rot:-10deg" x="160" y="420" width="92" height="42" rx="21" fill="var(--paper)" stroke="var(--ink)" stroke-width="3"/>
+    <svg class="wod-block-illus" viewBox="0 0 375 650" preserveAspectRatio="xMaxYMax slice" aria-hidden="true">
+      <ellipse cx="240" cy="470" rx="120" ry="46" fill="none" stroke="currentColor" stroke-width="4" stroke-opacity="0.32"/>
+      <ellipse cx="240" cy="470" rx="120" ry="46" fill="none" stroke="currentColor" stroke-width="4" stroke-opacity="0.32" transform="rotate(45 240 470)"/>
+      <ellipse cx="240" cy="470" rx="120" ry="46" fill="none" stroke="currentColor" stroke-width="4" stroke-opacity="0.32" transform="rotate(90 240 470)"/>
+      <ellipse cx="240" cy="470" rx="120" ry="46" fill="none" stroke="currentColor" stroke-width="4" stroke-opacity="0.32" transform="rotate(135 240 470)"/>
+      <circle cx="240" cy="470" r="20" fill="currentColor" fill-opacity="0.42"/>
     </svg>
   `,
 };

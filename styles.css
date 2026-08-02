@@ -107,6 +107,10 @@ body {
   margin-bottom: 28px;
 }
 .glass-panel:last-child { margin-bottom: 0; }
+/* Pegada a lo que venga justo debajo (p.ej. la fila Primero/Último/Diferencia
+   bajo la gráfica de peso): sin margen ni borde propio en ese lado, así la
+   línea de separación es una sola, no dos pegadas. */
+.glass-panel.attached-bottom { margin-bottom: 0; border-bottom: none; }
 
 .field-label {
   display: block;
@@ -478,6 +482,9 @@ input[type="date"].modal-date-input::-webkit-calendar-picker-indicator { cursor:
   background: var(--ink);
   border: 2px solid var(--ink);
 }
+/* Pareja de .glass-panel.attached-bottom: sin borde propio arriba, para
+   compartir una sola línea con la caja de encima en vez de dos pegadas. */
+.pct-grid.attached-top { border-top: none; }
 #rms-progress-stats,
 #bodyweight-stats,
 #composition-grid {
@@ -853,15 +860,26 @@ input[type="date"].modal-date-input::-webkit-calendar-picker-indicator { cursor:
 .wod-format { font-size: 0.72rem; color: var(--accent); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
 .wod-movements { margin: 0; padding-left: 18px; color: var(--text); font-size: 0.9rem; display: flex; flex-direction: column; gap: 4px; }
 
-/* WOD Destacado: es el único con caja (el resto de la lista es plana, con
-   líneas divisorias) — así se distingue de un vistazo como caso especial. */
+/* WOD Destacado: un botón, no un desplegable — lleva a la página a pantalla
+   completa de abajo. Es el único con caja en la lista de WODs (el resto es
+   plano, con líneas divisorias), así se distingue como caso especial. */
 .item-featured {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
   background: var(--white);
   border: 3px solid var(--ink);
-  border-bottom: 3px solid var(--ink);
   padding: 16px 14px;
   margin-bottom: 14px;
+  font-family: var(--font);
+  text-align: left;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
 }
+.item-featured:active { transform: scale(0.98); }
 .featured-wod-eyebrow {
   display: inline-block;
   background: var(--accent);
@@ -875,49 +893,77 @@ input[type="date"].modal-date-input::-webkit-calendar-picker-indicator { cursor:
 }
 .item-featured .item-title { font-size: 1.05rem; line-height: 1.3; }
 
-/* Línea del tiempo con scroll interno: cada bloque se atenúa hasta que entra
-   en foco (scroll-snap lo va centrando uno a uno); al llegar al centinela
-   del final, los tres se iluminan a la vez para ver el WOD completo. */
-.wod-blocks-scroll {
-  max-height: 46vh;
-  overflow-y: auto;
-  scroll-snap-type: y proximity;
+/* Página a pantalla completa (no un desplegable): tapa todo, incluida la
+   barra inferior, para que el WOD tenga toda la atención. */
+.featured-wod-page {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: var(--paper);
+  display: flex;
+  flex-direction: column;
+  animation: fw-page-in .25s var(--ease);
+}
+.featured-wod-page.hidden { display: none; }
+@keyframes fw-page-in { from { opacity: 0; } to { opacity: 1; } }
+.featured-wod-page-top {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  padding-top: calc(16px + env(safe-area-inset-top));
+}
+.featured-wod-dots { display: flex; gap: 6px; }
+.featured-wod-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(20, 18, 15, 0.2);
+  transition: background-color .2s var(--ease), transform .2s var(--ease);
+}
+.featured-wod-dot.active { background: var(--ink); transform: scale(1.3); }
+
+/* 3 tarjetas a toda página, deslizables con scroll horizontal + snap: se
+   sabe que se puede hacer swipe porque cada una ocupa la pantalla entera,
+   como un carrusel de stories, no una lista vertical. */
+.featured-wod-swipe {
+  flex: 1;
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
 }
-.wod-blocks-scroll::-webkit-scrollbar { display: none; }
-.wod-blocks-end { height: 24px; scroll-snap-align: end; }
-
-/* Los 3 bloques forman una sola caja continua (mismo borde exterior, sin
-   huecos entre ellos) y se separan solo con una línea negra — como los
-   bloques de color de la referencia de Strava, que van pegados unos a otros. */
-.wod-blocks { border: 2px solid var(--ink); }
+.featured-wod-swipe::-webkit-scrollbar { display: none; }
 .wod-block {
-  padding: 16px 14px;
-  scroll-snap-align: center;
-  opacity: 0.4;
-  transform: scale(0.95);
-  transition: opacity .4s var(--ease), transform .4s var(--ease);
+  flex: 0 0 100%;
+  width: 100%;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 28px 24px;
+  padding-bottom: calc(28px + env(safe-area-inset-bottom));
+  overflow-y: auto;
 }
-.wod-block.in-focus { opacity: 1; transform: scale(1); }
-.wod-block + .wod-block { border-top: 2px solid var(--ink); }
 
 /* Jerarquía dentro de cada bloque: icono+título(+cifra clave en la misma
    línea) > ejercicios, cada uno con su nota en línea aparte y más ligera. */
-.wod-block-head { display: flex; align-items: baseline; gap: 7px; margin-bottom: 10px; }
-.wod-block-head .icon { width: 17px; height: 17px; flex-shrink: 0; align-self: center; }
-.wod-block-title { font-size: 1.05rem; font-weight: 800; letter-spacing: -0.01em; line-height: 1.3; }
+.wod-block-head { display: flex; align-items: baseline; gap: 8px; margin-bottom: 16px; }
+.wod-block-head .icon { width: 22px; height: 22px; flex-shrink: 0; align-self: center; }
+.wod-block-title { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.01em; line-height: 1.25; }
 /* La cifra clave (EMOM 6', AMRAP 15') va pegada al título, no en su propia
    línea gigante: sigue destacando por el peso, no por el tamaño. */
 .wod-block-badge-inline { font-weight: 700; opacity: 0.85; }
-.wod-block-list { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 8px; font-size: 0.85rem; line-height: 1.35; }
+.wod-block-list { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 14px; font-size: 1rem; line-height: 1.4; }
 /* La nota que antes iba entre paréntesis o tras ":": misma línea, debajo,
    más ligera y algo más pequeña — no compite con el ejercicio en sí. */
 .wod-item-main { display: block; font-weight: 700; }
-.wod-item-sub { display: block; font-weight: 400; opacity: 0.75; font-size: 0.78rem; margin-top: 1px; }
+.wod-item-sub { display: block; font-weight: 400; opacity: 0.75; font-size: 0.85rem; margin-top: 2px; }
 .wod-item-genders { display: flex; gap: 14px; margin-top: 3px; }
 .wod-gender { display: inline-flex; align-items: center; gap: 4px; font-weight: 400; opacity: 0.85; }
-.wod-gender .icon { width: 13px; height: 13px; }
+.wod-gender .icon { width: 14px; height: 14px; }
 
 .wod-block.c0 { background: var(--teal); color: var(--white); }
 .wod-block.c1 { background: var(--yellow); color: var(--ink); }
@@ -926,18 +972,18 @@ input[type="date"].modal-date-input::-webkit-calendar-picker-indicator { cursor:
 /* Progresión de carga: el circuito de ejercicios se lista una sola vez (es
    el mismo en las 4 rondas), y aquí solo cambia el % — mostrarlo como tira
    de pastillas evita repetir la misma lista de ejercicios cuatro veces. */
-.wod-progress-row { display: flex; gap: 6px; margin: 10px 0; }
+.wod-progress-row { display: flex; gap: 8px; margin: 16px 0; }
 .wod-progress-pill {
   flex: 1;
   min-width: 0;
   border: 2px solid var(--ink);
   background: rgba(255, 255, 255, 0.4);
-  padding: 6px 2px;
+  padding: 8px 4px;
   text-align: center;
 }
-.wod-progress-n { display: block; font-size: 0.58rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.02em; opacity: 0.75; }
-.wod-progress-pct { display: block; font-family: var(--font-display); font-size: 1.15rem; font-weight: 800; letter-spacing: -0.01em; }
-.wod-block-note { font-size: 0.74rem; font-style: italic; opacity: 0.55; line-height: 1.35; margin: 0; }
+.wod-progress-n { display: block; font-size: 0.62rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.02em; opacity: 0.75; }
+.wod-progress-pct { display: block; font-family: var(--font-display); font-size: 1.3rem; font-weight: 800; letter-spacing: -0.01em; }
+.wod-block-note { font-size: 0.8rem; font-style: italic; opacity: 0.55; line-height: 1.4; margin: 12px 0 0; }
 
 /* ===== Timer ===== */
 /* Selector Countdown/Cronómetro: texto plano, el inactivo se ve atenuado
@@ -978,10 +1024,15 @@ input[type="date"].modal-date-input::-webkit-calendar-picker-indicator { cursor:
   align-items: center;
   justify-content: center;
   gap: 8px;
-  min-height: 150px;
+  /* Alto fijo (no min-height): la rueda del countdown y el número del
+     cronómetro miden distinto, así que sin un alto fijo se notaba un salto
+     al cambiar de uno a otro. Se fija al alto de la rueda (la más alta de
+     las dos), y el cronómetro, más bajo, queda centrado dentro sin mover
+     nada de alrededor. */
+  height: calc(var(--timer-num-size) * 2.25);
   /* Selector y reloj comparten exactamente el mismo tamaño de cifra para que
      al arrancar no haya ningún salto de tamaño ni de posición. */
-  --timer-num-size: clamp(5rem, 26vw, 8.5rem);
+  --timer-num-size: clamp(3.5rem, 18vw, 5.5rem);
 }
 
 /* 3 franjas visibles (arriba/activa/abajo), no solo 1: antes el viewport
@@ -1098,12 +1149,12 @@ input[type="date"].modal-date-input::-webkit-calendar-picker-indicator { cursor:
 }
 .rounds-reset-btn:active { opacity: 0.55; }
 
-.rounds-grid { display: flex; flex-direction: column; gap: 14px; }
-.rounds-row { display: flex; justify-content: center; gap: 14px; }
+.rounds-grid { display: flex; flex-direction: column; gap: 10px; }
+.rounds-row { display: flex; justify-content: center; gap: 10px; }
 
 .round-dot {
-  width: 52px;
-  height: 52px;
+  width: 42px;
+  height: 42px;
   flex-shrink: 0;
   border-radius: 50%;
   border: 2px solid var(--ink);
@@ -1114,7 +1165,7 @@ input[type="date"].modal-date-input::-webkit-calendar-picker-indicator { cursor:
   padding: 0;
   font-family: var(--font-display);
   font-weight: 800;
-  font-size: 1.1rem;
+  font-size: 0.92rem;
   color: var(--ink);
   cursor: pointer;
   transition: background-color .2s var(--ease), color .2s var(--ease);

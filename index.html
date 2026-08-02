@@ -194,18 +194,13 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
     <div class="plain-section">
       <label class="field-label">WOD Heroes</label>
 
-      <div class="item item-featured" id="featured-wod-item">
-        <div class="item-top">
-          <div>
-            <span class="featured-wod-eyebrow">WOD Destacado</span>
-            <div class="item-title">Calentamiento · Fuerza progresiva · AMRAP 15'</div>
-          </div>
-          <svg class="icon icon-sm item-chevron"><use href="#icon-chevron"/></svg>
+      <button type="button" class="item item-featured" id="featured-wod-btn">
+        <div>
+          <span class="featured-wod-eyebrow">WOD Destacado</span>
+          <div class="item-title">Calentamiento · Fuerza progresiva · AMRAP 15'</div>
         </div>
-        <div class="item-detail">
-          <div class="item-detail-inner" id="featured-wod-body"></div>
-        </div>
-      </div>
+        <svg class="icon icon-sm"><use href="#icon-chevron"/></svg>
+      </button>
 
       <div id="wod-list" class="list"></div>
     </div>
@@ -242,9 +237,9 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
 
     <div class="plain-section">
       <label class="field-label">Evolución del peso</label>
-      <div class="glass-panel" id="bodyweight-chart-wrap"></div>
+      <div class="glass-panel attached-bottom" id="bodyweight-chart-wrap"></div>
       <p class="empty hidden" id="bodyweight-empty">Todavía no has guardado tu peso. Apunta el de hoy arriba.</p>
-      <div class="pct-grid" id="bodyweight-stats"></div>
+      <div class="pct-grid attached-top" id="bodyweight-stats"></div>
     </div>
   </section>
 
@@ -304,6 +299,18 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
     <span class="nav-icon-wrap"><svg class="icon nav-icon"><use href="#icon-timer"/></svg></span><span>Timer</span>
   </button>
 </nav>
+
+<!-- Página a pantalla completa del WOD Destacado: 3 tarjetas, una por
+     bloque, deslizables horizontalmente (swipe), no un desplegable. -->
+<div class="featured-wod-page hidden" id="featured-wod-page">
+  <div class="featured-wod-page-top">
+    <button type="button" class="icon-btn" id="featured-wod-back" aria-label="Volver">
+      <svg class="icon"><use href="#icon-arrow-left"/></svg>
+    </button>
+    <div class="featured-wod-dots" id="featured-wod-dots"></div>
+  </div>
+  <div class="featured-wod-swipe" id="featured-wod-swipe"></div>
+</div>
 
 <!-- Popup para editar el RM desde Mis RMs -->
 <div class="modal-overlay hidden" id="rm-edit-modal">

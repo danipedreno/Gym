@@ -797,54 +797,42 @@ function renderRoundsPills(rounds) {
   `;
 }
 
-// El scroll interno enfoca un bloque a la vez (como una línea del tiempo) y,
-// al llegar al final (el centinela .wod-blocks-end), los tres se iluminan a
-// la vez para dar la visión de conjunto del entrenamiento completo.
+// Página a pantalla completa, no desplegable: 3 tarjetas (una por bloque) en
+// una fila con scroll horizontal + snap, para deslizar de una a otra como en
+// un carrusel de stories. Los puntos de arriba marcan en cuál se está.
 function renderFeaturedWod() {
-  const body = document.getElementById('featured-wod-body');
-  body.innerHTML = `
-    <div class="wod-blocks-scroll" id="wod-blocks-scroll">
-      <div class="wod-blocks">${FEATURED_WOD.blocks.map((block) => `
-        <div class="wod-block ${block.color}">
-          <div class="wod-block-head">
-            <svg class="icon"><use href="#icon-${block.icon}"/></svg>
-            <span class="wod-block-title">${block.title}${block.badge ? ` <span class="wod-block-badge-inline">${block.badge}</span>` : ''}</span>
-          </div>
-          ${block.rounds ? renderRoundsPills(block.rounds) : ''}
-          <ul class="wod-block-list">${block.items.map(renderWodItem).join('')}</ul>
-          ${block.note ? `<p class="wod-block-note">${block.note}</p>` : ''}
-        </div>
-      `).join('')}</div>
-      <div class="wod-blocks-end"></div>
+  const swipe = document.getElementById('featured-wod-swipe');
+  swipe.innerHTML = FEATURED_WOD.blocks.map((block) => `
+    <div class="wod-block ${block.color}">
+      <div class="wod-block-head">
+        <svg class="icon"><use href="#icon-${block.icon}"/></svg>
+        <span class="wod-block-title">${block.title}${block.badge ? ` <span class="wod-block-badge-inline">${block.badge}</span>` : ''}</span>
+      </div>
+      ${block.rounds ? renderRoundsPills(block.rounds) : ''}
+      <ul class="wod-block-list">${block.items.map(renderWodItem).join('')}</ul>
+      ${block.note ? `<p class="wod-block-note">${block.note}</p>` : ''}
     </div>
-  `;
+  `).join('');
+
+  const dots = document.getElementById('featured-wod-dots');
+  dots.innerHTML = FEATURED_WOD.blocks.map((_, i) => `<span class="featured-wod-dot${i === 0 ? ' active' : ''}"></span>`).join('');
 }
 
-// Cálculo directo por scroll (no IntersectionObserver): así el primer
-// bloque queda enfocado nada más abrirse, sin esperar al primer callback
-// asíncrono del observer.
-function initWodBlocksScrollFocus() {
-  const scrollEl = document.getElementById('wod-blocks-scroll');
-  if (!scrollEl) return;
+function updateFeaturedWodDots() {
+  const swipe = document.getElementById('featured-wod-swipe');
+  if (!swipe.clientWidth) return;
+  const index = Math.round(swipe.scrollLeft / swipe.clientWidth);
+  document.querySelectorAll('.featured-wod-dot').forEach((d, i) => d.classList.toggle('active', i === index));
+}
 
-  const blocks = [...scrollEl.querySelectorAll('.wod-block')];
-
-  function update() {
-    const atEnd = scrollEl.scrollTop + scrollEl.clientHeight >= scrollEl.scrollHeight - 4;
-    if (atEnd) {
-      blocks.forEach((b) => b.classList.add('in-focus'));
-      return;
-    }
-    const rootRect = scrollEl.getBoundingClientRect();
-    blocks.forEach((b) => {
-      const r = b.getBoundingClientRect();
-      const visible = Math.max(0, Math.min(r.bottom, rootRect.bottom) - Math.max(r.top, rootRect.top));
-      b.classList.toggle('in-focus', r.height > 0 && visible / r.height > 0.8);
-    });
-  }
-
-  scrollEl.addEventListener('scroll', update, { passive: true });
-  update();
+function openFeaturedWodPage() {
+  const swipe = document.getElementById('featured-wod-swipe');
+  document.getElementById('featured-wod-page').classList.remove('hidden');
+  swipe.scrollLeft = 0;
+  updateFeaturedWodDots();
+}
+function closeFeaturedWodPage() {
+  document.getElementById('featured-wod-page').classList.add('hidden');
 }
 
 // ===== Tab: WOD Heroes =====
@@ -1048,15 +1036,13 @@ function renderWodList() {
 function initWodsTab() {
   renderWodList();
 
-  const featuredItem = document.getElementById('featured-wod-item');
-  featuredItem.querySelector('.item-top').addEventListener('click', () => {
-    const willExpand = !featuredItem.classList.contains('expanded');
-    // Se regenera cada vez que se abre para que la animación de entrada de
-    // los bloques se repita, no solo la primera vez.
-    if (willExpand) renderFeaturedWod();
-    toggleItemExpand(featuredItem);
-    if (willExpand) initWodBlocksScrollFocus();
-  });
+  document.getElementById('featured-wod-btn').addEventListener('click', openFeaturedWodPage);
+  document.getElementById('featured-wod-back').addEventListener('click', closeFeaturedWodPage);
+  let dotsDebounce = null;
+  document.getElementById('featured-wod-swipe').addEventListener('scroll', () => {
+    clearTimeout(dotsDebounce);
+    dotsDebounce = setTimeout(updateFeaturedWodDots, 50);
+  }, { passive: true });
   renderFeaturedWod();
 }
 
@@ -1068,7 +1054,7 @@ function fmtShortDate(iso) {
 
 // Dibuja un gráfico de líneas + tarjetas de estadística a partir de puntos {weight, date}.
 // Se reutiliza tanto para el progreso de un ejercicio (RM + series) como para el peso corporal.
-function renderTrendChart(points, { wrapEl, emptyEl, statsEl, unit = 'kg', ariaLabel, statsMode = 'best', onDotClick }) {
+function renderTrendChart(points, { wrapEl, emptyEl, statsEl, unit = 'kg', ariaLabel, statsMode = 'best', onDotClick, endpointColors }) {
   wrapEl.innerHTML = '';
   statsEl.innerHTML = '';
 
@@ -1099,8 +1085,18 @@ function renderTrendChart(points, { wrapEl, emptyEl, statsEl, unit = 'kg', ariaL
   const yAt = (w) => padT + innerH - ((w - minW) / (maxW - minW)) * innerH;
 
   const linePoints = points.map((p, i) => `${xAt(i)},${yAt(p.weight)}`).join(' ');
+  // Los extremos pueden llevar el mismo color que sus tiles de Primero/Último
+  // en vez del naranja de acento genérico, para que se identifiquen a
+  // simple vista con la fila de estadísticas de abajo.
+  const dotFill = (i) => {
+    if (endpointColors) {
+      if (i === 0) return endpointColors.first;
+      if (i === points.length - 1) return endpointColors.last;
+    }
+    return 'var(--accent)';
+  };
   const dots = points
-    .map((p, i) => `<circle class="chart-dot" data-idx="${i}" style="animation-delay:${0.7 + i * 0.05}s" cx="${xAt(i)}" cy="${yAt(p.weight)}" r="4" fill="var(--accent)"/>`)
+    .map((p, i) => `<circle class="chart-dot" data-idx="${i}" style="animation-delay:${0.7 + i * 0.05}s" cx="${xAt(i)}" cy="${yAt(p.weight)}" r="4" fill="${dotFill(i)}"/>`)
     .join('');
   // Círculo invisible más grande encima de cada punto: solo para que el dedo
   // tenga un blanco decente al tocar (el punto visible es muy pequeño).
@@ -1230,6 +1226,7 @@ function renderBodyWeightChart() {
     ariaLabel: 'Evolución de tu peso corporal',
     statsMode: 'diff',
     onDotClick: openBwEditModal,
+    endpointColors: { first: 'var(--teal)', last: 'var(--pink)' },
   });
 }
 

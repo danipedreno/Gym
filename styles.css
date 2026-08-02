@@ -288,14 +288,14 @@ input[type="number"].rm-big-input {
 }
 .icon-btn:active { transform: scale(0.9); background: var(--accent); }
 
-/* "Apuntar peso": el peso siempre a la izquierda con "Kg" pegado, la fecha a
-   continuación, y "Guardar" como texto (no botón) empujado al extremo
-   contrario de la misma línea con margin-left:auto. */
-.bw-row { display: flex; align-items: baseline; gap: 8px; }
+/* "Apuntar peso": fecha + Guardar arriba en su propia línea, y debajo el
+   peso a toda pantalla, protagonista, con "Kg" pegado detrás. */
+.bw-row { display: flex; flex-direction: column; gap: 14px; }
+.bw-top-row { display: flex; align-items: center; justify-content: space-between; }
 .bw-value { display: flex; align-items: baseline; gap: 5px; flex: 0 0 auto; }
 .bw-unit {
   font-family: var(--font-display);
-  font-size: 1rem;
+  font-size: 1.3rem;
   font-weight: 700;
   color: var(--text-dim);
   padding-bottom: 0.25em;
@@ -303,14 +303,13 @@ input[type="number"].rm-big-input {
 /* Sin icono propio de calendario: el <input type="date"> nativo ya trae el
    suyo. Solo un subrayado para dar pie a que se puede tocar. */
 .bw-date-input {
-  flex: 0 1 auto;
-  min-width: 0;
+  flex: 0 0 auto;
   background: transparent;
   border: none;
   border-bottom: 2px solid var(--ink);
   color: var(--text-dim);
   font-family: var(--font);
-  font-size: 0.64rem;
+  font-size: 0.8rem;
   font-weight: 700;
   padding: 4px 0;
   color-scheme: light;
@@ -319,36 +318,35 @@ input[type="number"].rm-big-input {
 .bw-date-input::-webkit-calendar-picker-indicator { cursor: pointer; border-radius: 6px; }
 .bw-save-link {
   flex: 0 0 auto;
-  margin-left: auto;
   background: none;
   border: none;
   padding: 4px 0;
   font-family: var(--font);
   font-weight: 800;
-  font-size: 0.78rem;
+  font-size: 0.85rem;
   text-transform: uppercase;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.02em;
   color: var(--accent);
   cursor: pointer;
 }
 .bw-save-link:active { opacity: 0.55; }
 /* Sin caja: nada de fondo ni borde, como el número gigante de Registrar.
    input[type="number"].bw-input (no solo .bw-input) para ganarle en
-   especificidad a la regla genérica de inputs, que si no deja la caja blanca. */
+   especificidad a la regla genérica de inputs, que si no deja la caja blanca.
+   El ancho lo fija autosizeBwInput() en JS, ajustado a los dígitos escritos
+   (si no, un ancho fijo deja hueco a la izquierda y el peso no queda pegado
+   al borde izquierdo del módulo). */
 input[type="number"].bw-input {
   flex: 0 0 auto;
-  width: 4.2ch;
+  width: 2ch;
   min-width: 0;
   background: transparent;
   border: none;
   border-radius: 0;
   padding: 0;
-  /* A la derecha (no a la izquierda): así los dígitos quedan siempre pegados
-     a "Kg", sin hueco cuando el número es corto (ej. "72" en una caja
-     reservada para 4 caracteres). */
   text-align: right;
   font-family: var(--font-display);
-  font-size: clamp(3rem, 15vw, 3.8rem);
+  font-size: clamp(4.5rem, 24vw, 7rem);
   font-weight: 800;
   letter-spacing: -0.02em;
   color: var(--ink);
@@ -389,6 +387,38 @@ input[type="number"].bw-input {
 }
 .modal-actions { display: flex; gap: 10px; margin-top: 14px; }
 .modal-actions .btn { flex: 1; margin-top: 0; }
+/* Un <input type="date"> nativo, sin más, se queda con el estilo redondeado
+   del navegador y desentona con las cajas de la app (borde negro de 2px,
+   sin radio). Este selector le aplica el mismo tratamiento. */
+input[type="date"].modal-date-input {
+  width: 100%;
+  background: var(--white);
+  border: 2px solid var(--ink);
+  border-radius: 0;
+  color: var(--text);
+  padding: 10px 14px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  font-family: var(--font);
+  outline: none;
+  color-scheme: light;
+  transition: background-color .15s var(--ease);
+}
+input[type="date"].modal-date-input:focus { background: var(--yellow); }
+input[type="date"].modal-date-input::-webkit-calendar-picker-indicator { cursor: pointer; }
+/* Más compacto que el input genérico: aquí solo hace falta escribir un
+   número corto, no hace falta la misma caja alta que un campo de texto. */
+.bw-edit-input {
+  padding: 8px 14px;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+.bw-edit-input::-webkit-inner-spin-button,
+.bw-edit-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.bw-edit-input { -moz-appearance: textfield; }
 .rm-big-value {
   text-align: center;
   font-family: var(--font-display);
@@ -778,7 +808,7 @@ input[type="number"].bw-input {
   white-space: nowrap;
   min-width: 0;
 }
-.rm-list-meta { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
+.rm-list-meta { display: grid; grid-template-columns: repeat(6, 1fr); gap: 3px; }
 .rm-list-meta-col { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .rm-list-meta-label {
   font-family: var(--font-mono);

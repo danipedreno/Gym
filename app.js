@@ -131,7 +131,7 @@ const EXERCISE_ALIASES = {
   'Barbell Zercher Squat': 'sentadilla zercher',
 };
 
-const PERCENTAGES = [90, 80, 70, 60, 50];
+const PERCENTAGES = [90, 80, 70, 60, 50, 40];
 // Tamaños reales de kettlebell disponibles en el box.
 const STANDARD_KB_KG = [8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52];
 // Tamaños reales de dumbbell disponibles en el box.
@@ -448,7 +448,9 @@ function renderPercentGrid(rm, equipment, gridElId) {
 
   calcPercentages(rm, equipment).forEach(({ pct, rounded, nearest }, i) => {
     const tile = document.createElement('div');
-    tile.className = i === 0 ? 'pct-tile hero' : 'pct-tile';
+    // Sin "hero": aquí las seis tiles son igual de protagonistas (el 90% no es
+    // menos importante que el resto), así que todas llevan color del ciclo.
+    tile.className = 'pct-tile';
     tile.style.animationDelay = `${i * 40}ms`;
     // En kettlebell/dumbbell no existen pesos intermedios: el número grande es la
     // pesa real que hay que coger, y el valor teórico exacto queda como dato secundario.
@@ -1315,6 +1317,15 @@ function todayIso() {
   return new Date().toISOString().slice(0, 10);
 }
 
+// Igual que autosizeRmInput: sin esto, el ancho reservado por el CSS deja un
+// hueco a la izquierda de los dígitos cortos y el peso deja de estar pegado
+// al borde izquierdo del módulo.
+function autosizeBwInput() {
+  const bwInput = document.getElementById('bodyweight-input');
+  const len = (bwInput.value || bwInput.placeholder || '0').length;
+  bwInput.style.width = `${len + 0.4}ch`;
+}
+
 function initPesoTab() {
   refreshProfileSummary();
 
@@ -1327,9 +1338,11 @@ function initPesoTab() {
   if (history.length) {
     document.getElementById('bodyweight-input').value = history[history.length - 1].weight;
   }
+  autosizeBwInput();
 
   document.getElementById('bodyweight-input').addEventListener('input', () => {
     document.getElementById('bodyweight-error-hint').classList.add('hidden');
+    autosizeBwInput();
   });
 
   document.getElementById('save-bodyweight-btn').addEventListener('click', () => {

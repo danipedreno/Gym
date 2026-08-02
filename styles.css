@@ -288,10 +288,10 @@ input[type="number"].rm-big-input {
 }
 .icon-btn:active { transform: scale(0.9); background: var(--accent); }
 
-/* "Apuntar peso": el número manda (grande, sin caja, se escribe directo, con
-   "Kg" al lado); fecha y Guardar van pegados a continuación, no despegados
-   al borde derecho — la fila no se estira, solo ocupa lo que necesita. */
-.bw-row { display: flex; align-items: flex-end; gap: 10px; flex-wrap: wrap; }
+/* "Apuntar peso": el peso siempre a la izquierda con "Kg" pegado, la fecha a
+   continuación, y "Guardar" como texto (no botón) empujado al extremo
+   contrario de la misma línea con margin-left:auto. */
+.bw-row { display: flex; align-items: baseline; gap: 8px; }
 .bw-value { display: flex; align-items: baseline; gap: 5px; flex: 0 0 auto; }
 .bw-unit {
   font-family: var(--font-display);
@@ -300,33 +300,38 @@ input[type="number"].rm-big-input {
   color: var(--text-dim);
   padding-bottom: 0.25em;
 }
-.bw-side { flex: 0 0 auto; width: 120px; display: flex; flex-direction: column; gap: 6px; }
 /* Sin icono propio de calendario: el <input type="date"> nativo ya trae el
-   suyo, y en esta columna tan estrecha duplicarlo solo quitaba sitio al texto. */
-.bw-date-btn {
-  display: flex;
-  align-items: center;
-  background: var(--white);
-  border: 2px solid var(--ink);
-  border-radius: 0;
-  padding: 0 4px;
-  color: var(--accent);
-}
+   suyo. Solo un subrayado para dar pie a que se puede tocar. */
 .bw-date-input {
-  width: 100%;
+  flex: 0 1 auto;
   min-width: 0;
   background: transparent;
   border: none;
-  color: var(--text);
+  border-bottom: 2px solid var(--ink);
+  color: var(--text-dim);
   font-family: var(--font);
-  font-size: 0.68rem;
+  font-size: 0.64rem;
   font-weight: 700;
-  padding: 10px 0;
+  padding: 4px 0;
   color-scheme: light;
 }
 .bw-date-input:focus { outline: none; }
 .bw-date-input::-webkit-calendar-picker-indicator { cursor: pointer; border-radius: 6px; }
-.bw-save-btn { width: 100%; }
+.bw-save-link {
+  flex: 0 0 auto;
+  margin-left: auto;
+  background: none;
+  border: none;
+  padding: 4px 0;
+  font-family: var(--font);
+  font-weight: 800;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  color: var(--accent);
+  cursor: pointer;
+}
+.bw-save-link:active { opacity: 0.55; }
 /* Sin caja: nada de fondo ni borde, como el número gigante de Registrar.
    input[type="number"].bw-input (no solo .bw-input) para ganarle en
    especificidad a la regla genérica de inputs, que si no deja la caja blanca. */

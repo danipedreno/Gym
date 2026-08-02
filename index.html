@@ -212,12 +212,8 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
           <input type="number" id="bodyweight-input" class="bw-input" inputmode="decimal" step="0.1" min="0" placeholder="0">
           <span class="bw-unit">Kg</span>
         </div>
-        <div class="bw-side">
-          <label class="bw-date-btn" for="bodyweight-date">
-            <input type="date" id="bodyweight-date" class="bw-date-input">
-          </label>
-          <button class="btn bw-save-btn" id="save-bodyweight-btn">Guardar</button>
-        </div>
+        <input type="date" id="bodyweight-date" class="bw-date-input" aria-label="Fecha">
+        <button type="button" class="bw-save-link" id="save-bodyweight-btn">Guardar</button>
       </div>
       <p class="hint error hidden" id="bodyweight-error-hint"></p>
     </div>
@@ -295,6 +291,24 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
     </div>
     <button class="btn btn-danger btn-block" id="rm-edit-delete-btn" style="margin-top:10px">
       <svg class="icon icon-sm"><use href="#icon-trash"/></svg> Eliminar este RM
+    </button>
+  </div>
+</div>
+
+<!-- Popup para editar un registro de peso, abierto al tocar un punto de la gráfica -->
+<div class="modal-overlay hidden" id="bw-edit-modal">
+  <div class="modal-card">
+    <label class="field-label" for="bw-edit-weight">Peso (kg)</label>
+    <input type="number" id="bw-edit-weight" inputmode="decimal" step="0.1" min="0" placeholder="Ej. 77.5">
+    <label class="field-label small" for="bw-edit-date">Fecha</label>
+    <input type="date" id="bw-edit-date">
+    <p class="hint error hidden" id="bw-edit-error"></p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" id="bw-edit-cancel">Cancelar</button>
+      <button class="btn" id="bw-edit-save">Guardar</button>
+    </div>
+    <button class="btn btn-danger btn-block" id="bw-edit-delete-btn" style="margin-top:10px">
+      <svg class="icon icon-sm"><use href="#icon-trash"/></svg> Eliminar este registro
     </button>
   </div>
 </div>

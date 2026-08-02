@@ -386,11 +386,16 @@ function autosizeRmInput() {
   rmInput.style.width = `${len + 0.4}ch`;
 }
 
-function resetRmEntry() {
+// keepValue evita borrar lo que el usuario ya haya escrito a mano: cambiar de
+// material solo debe olvidar el ejercicio elegido (pertenece al material
+// anterior), no el número que ya estaba tecleando.
+function resetRmEntry({ keepValue = false } = {}) {
   selectedExercise = null;
-  rmInputDirty = false;
   const rmInput = document.getElementById('rm-input');
-  rmInput.value = '';
+  if (!keepValue) {
+    rmInputDirty = false;
+    rmInput.value = '';
+  }
   document.getElementById('exercise-search').value = '';
   document.getElementById('rm-updated-hint').textContent = '';
   document.getElementById('rm-error-hint').classList.add('hidden');
@@ -467,7 +472,7 @@ function onEquipmentChange(equipment) {
     btn.classList.toggle('active', btn.dataset.equipment === equipment);
   });
   document.getElementById('exercise-results').classList.add('hidden');
-  resetRmEntry();
+  resetRmEntry({ keepValue: true });
 }
 
 function initRegistrarTab() {
@@ -943,7 +948,7 @@ function fmtShortDate(iso) {
 
 // Dibuja un gráfico de líneas + tarjetas de estadística a partir de puntos {weight, date}.
 // Se reutiliza tanto para el progreso de un ejercicio (RM + series) como para el peso corporal.
-function renderTrendChart(points, { wrapEl, emptyEl, statsEl, unit = 'kg', ariaLabel, statsMode = 'best' }) {
+function renderTrendChart(points, { wrapEl, emptyEl, statsEl, unit = 'kg', ariaLabel, statsMode = 'best', onDotClick }) {
   wrapEl.innerHTML = '';
   statsEl.innerHTML = '';
 
@@ -961,8 +966,13 @@ function renderTrendChart(points, { wrapEl, emptyEl, statsEl, unit = 'kg', ariaL
   const minW = realMin - padY;
   const maxW = realMax + padY;
 
-  const W = 300, H = 150, padL = 30, padR = 10, padT = 16, padB = 24;
+  const W = 300, padL = 30, padR = 10;
   const innerW = W - padL - padR;
+  // Solo se rotan las fechas si de verdad no caben en horizontal (poco
+  // espacio entre puntos): con pocos registros se quedan rectas y legibles.
+  const spacing = points.length > 1 ? innerW / (points.length - 1) : innerW;
+  const rotateLabels = spacing < 26;
+  const H = 150, padT = 16, padB = rotateLabels ? 32 : 24;
   const innerH = H - padT - padB;
 
   const xAt = (i) => (points.length === 1 ? padL + innerW / 2 : padL + (i / (points.length - 1)) * innerW);
@@ -978,28 +988,35 @@ function renderTrendChart(points, { wrapEl, emptyEl, statsEl, unit = 'kg', ariaL
     .map((p, i) => `<circle class="chart-dot-hit" data-idx="${i}" cx="${xAt(i)}" cy="${yAt(p.weight)}" r="13" fill="transparent"/>`)
     .join('');
 
-  // Tooltip oculto por punto: al tocar el punto se ve cuánto pesaba ese día
-  // (la línea sola no deja claro qué peso es cada marca).
-  const tooltips = points
-    .map((p, i) => {
-      const label = `${p.weight} ${unit}`;
-      const boxW = Math.max(34, label.length * 5.6 + 10);
-      const tx = Math.min(Math.max(xAt(i), padL + boxW / 2), W - padR - boxW / 2);
-      const ty = Math.max(yAt(p.weight) - 14, 11);
-      return `
-        <g class="chart-tooltip hidden" data-idx="${i}">
-          <rect x="${tx - boxW / 2}" y="${ty - 11}" width="${boxW}" height="16" fill="var(--ink)"/>
-          <text x="${tx}" y="${ty}" font-size="9" font-weight="700" fill="var(--paper)" text-anchor="middle">${label}</text>
-        </g>
-      `;
-    })
-    .join('');
+  // Tooltip oculto por punto: al tocar el punto se ve cuánto pesaba ese día.
+  // No hace falta si tocar un punto ya abre un popup de edición (onDotClick).
+  const tooltips = onDotClick
+    ? ''
+    : points
+        .map((p, i) => {
+          const label = `${p.weight} ${unit}`;
+          const boxW = Math.max(34, label.length * 5.6 + 10);
+          const tx = Math.min(Math.max(xAt(i), padL + boxW / 2), W - padR - boxW / 2);
+          const ty = Math.max(yAt(p.weight) - 14, 11);
+          return `
+            <g class="chart-tooltip hidden" data-idx="${i}">
+              <rect x="${tx - boxW / 2}" y="${ty - 11}" width="${boxW}" height="16" fill="var(--ink)"/>
+              <text x="${tx}" y="${ty}" font-size="9" font-weight="700" fill="var(--paper)" text-anchor="middle">${label}</text>
+            </g>
+          `;
+        })
+        .join('');
 
-  const labelIdxs = points.length > 2
-    ? [0, Math.floor((points.length - 1) / 2), points.length - 1]
-    : points.map((_, i) => i);
-  const dateLabels = labelIdxs
-    .map((i) => `<text x="${xAt(i)}" y="${H - 6}" font-size="9" fill="var(--text-dim)" text-anchor="middle">${fmtShortDate(points[i].date)}</text>`)
+  // Todas las fechas, no solo primera/media/última: si hay muchos puntos se
+  // rotan para que quepan sin solaparse.
+  const dateLabels = points
+    .map((p, i) => {
+      const x = xAt(i);
+      const y = H - 6;
+      const transform = rotateLabels ? ` transform="rotate(-40 ${x} ${y})"` : '';
+      const anchor = rotateLabels ? 'end' : 'middle';
+      return `<text x="${x}" y="${y}" font-size="8" fill="var(--text-dim)" text-anchor="${anchor}"${transform}>${fmtShortDate(p.date)}</text>`;
+    })
     .join('');
 
   wrapEl.innerHTML = `
@@ -1014,11 +1031,16 @@ function renderTrendChart(points, { wrapEl, emptyEl, statsEl, unit = 'kg', ariaL
     </svg>
   `;
 
-  // Tocar un punto muestra su peso; tocar otro cambia cuál se ve (uno a la vez).
+  // Tocar un punto abre su popup de edición si se ha dado onDotClick; si no,
+  // muestra su peso en un tooltip (tocar otro cambia cuál se ve, uno a la vez).
   wrapEl.querySelectorAll('.chart-dot, .chart-dot-hit').forEach((el) => {
     el.addEventListener('click', () => {
       const idx = el.dataset.idx;
-      wrapEl.querySelectorAll('.chart-tooltip').forEach((t) => t.classList.toggle('hidden', t.dataset.idx !== idx));
+      if (onDotClick) {
+        onDotClick(points[Number(idx)]);
+      } else {
+        wrapEl.querySelectorAll('.chart-tooltip').forEach((t) => t.classList.toggle('hidden', t.dataset.idx !== idx));
+      }
     });
   });
 
@@ -1065,6 +1087,21 @@ function addBodyWeight(weight, dateStr) {
   if (idx >= 0) history[idx] = entry; else history.push(entry);
   Store.write(KEY_BODYWEIGHT, history);
 }
+// originalIso identifica la entrada a editar (su fecha actual, antes del cambio):
+// como la fecha es lo único "único" en el historial, no sirve buscar por índice
+// una vez que la lista se ha vuelto a ordenar en getBodyWeightHistory().
+function updateBodyWeightEntry(originalIso, weight, dateStr) {
+  const history = Store.read(KEY_BODYWEIGHT, []);
+  const idx = history.findIndex((h) => h.date === originalIso);
+  if (idx < 0) return;
+  history.splice(idx, 1);
+  Store.write(KEY_BODYWEIGHT, history);
+  addBodyWeight(weight, dateStr);
+}
+function deleteBodyWeightEntry(originalIso) {
+  const history = Store.read(KEY_BODYWEIGHT, []).filter((h) => h.date !== originalIso);
+  Store.write(KEY_BODYWEIGHT, history);
+}
 function renderBodyWeightChart() {
   renderTrendChart(getBodyWeightHistory(), {
     wrapEl: document.getElementById('bodyweight-chart-wrap'),
@@ -1072,7 +1109,49 @@ function renderBodyWeightChart() {
     statsEl: document.getElementById('bodyweight-stats'),
     ariaLabel: 'Evolución de tu peso corporal',
     statsMode: 'diff',
+    onDotClick: openBwEditModal,
   });
+}
+
+// ===== Popup para editar/eliminar un registro de peso desde la gráfica =====
+let bwEditOriginalIso = null;
+
+function openBwEditModal(point) {
+  bwEditOriginalIso = point.date;
+  document.getElementById('bw-edit-weight').value = point.weight;
+  document.getElementById('bw-edit-date').value = point.date.slice(0, 10);
+  document.getElementById('bw-edit-error').classList.add('hidden');
+
+  // Se clona el botón de eliminar para que cada apertura del popup empiece con el
+  // estado de "doble toque" limpio, sin arrastrar el armado de una apertura anterior.
+  const deleteBtn = document.getElementById('bw-edit-delete-btn');
+  const freshBtn = deleteBtn.cloneNode(true);
+  deleteBtn.replaceWith(freshBtn);
+  let armed = false;
+  freshBtn.addEventListener('click', () => {
+    if (!armed) {
+      armed = true;
+      freshBtn.classList.add('btn-danger-armed');
+      freshBtn.textContent = '¿Seguro? Toca de nuevo';
+      setTimeout(() => {
+        armed = false;
+        freshBtn.classList.remove('btn-danger-armed');
+        freshBtn.innerHTML = '<svg class="icon icon-sm"><use href="#icon-trash"/></svg> Eliminar este registro';
+      }, 3000);
+    } else {
+      deleteBodyWeightEntry(bwEditOriginalIso);
+      closeBwEditModal();
+      renderBodyWeightChart();
+      renderCompositionGrid();
+    }
+  });
+
+  document.getElementById('bw-edit-modal').classList.remove('hidden');
+  document.getElementById('bw-edit-weight').focus();
+}
+function closeBwEditModal() {
+  document.getElementById('bw-edit-modal').classList.add('hidden');
+  bwEditOriginalIso = null;
 }
 
 // ===== Perfil (para calcular la composición corporal) =====
@@ -1278,6 +1357,33 @@ function initPesoTab() {
     renderBodyWeightChart();
     renderCompositionGrid();
     showSaveSuccess();
+  });
+
+  document.getElementById('bw-edit-cancel').addEventListener('click', closeBwEditModal);
+  document.getElementById('bw-edit-modal').addEventListener('click', (e) => {
+    if (e.target.id === 'bw-edit-modal') closeBwEditModal();
+  });
+  document.getElementById('bw-edit-weight').addEventListener('input', () => {
+    document.getElementById('bw-edit-error').classList.add('hidden');
+  });
+  document.getElementById('bw-edit-save').addEventListener('click', () => {
+    const value = parseFloat(document.getElementById('bw-edit-weight').value);
+    const editDate = document.getElementById('bw-edit-date').value;
+    const errorHint = document.getElementById('bw-edit-error');
+    if (!value || value <= 0) {
+      errorHint.textContent = 'Introduce un peso válido, mayor que 0.';
+      errorHint.classList.remove('hidden');
+      return;
+    }
+    if (!editDate) {
+      errorHint.textContent = 'Elige una fecha.';
+      errorHint.classList.remove('hidden');
+      return;
+    }
+    updateBodyWeightEntry(bwEditOriginalIso, value, editDate);
+    closeBwEditModal();
+    renderBodyWeightChart();
+    renderCompositionGrid();
   });
 
   renderBodyWeightChart();

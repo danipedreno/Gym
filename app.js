@@ -729,7 +729,7 @@ const FEATURED_WOD = {
     {
       color: 'c0',
       icon: 'timer',
-      title: 'Calentamiento y Core Inteligente',
+      title: 'Calentamiento',
       badge: "EMOM 6'",
       items: [
         { main: 'Minutos impares 1, 3, 5', sub: '12 sentadillas libres + 20s plancha abdominal activa.' },
@@ -741,17 +741,17 @@ const FEATURED_WOD = {
       icon: 'dumbbell',
       title: 'Fuerza y Estabilidad Progresiva',
       items: [
-        { main: '12 pesos muertos con KB o barra' },
+        { main: '12 pesos muertos con KB' },
         { main: '10 press militar con mancuernas' },
-        { main: '12 remos con mancuernas', sub: 'torso a 45°' },
+        { main: '12 remos con mancuernas' },
       ],
       rounds: [
         { n: 1, pct: '50%' },
         { n: 2, pct: '60%' },
         { n: 3, pct: '70%' },
-        { n: 4, pct: '80%' },
+        { n: 4, pct: '80%', marker: '*' },
       ],
-      note: 'Ronda 4: si pesa mucho, baja a 8-10 reps en muerto y remos, y a 8 en press militar.',
+      note: '*Si pesa mucho, baja a 8-10 reps en muerto y remos, y a 8 en press militar.',
     },
     {
       color: 'c2',
@@ -759,10 +759,10 @@ const FEATURED_WOD = {
       title: 'El Work Out del Día',
       badge: "AMRAP 15'",
       items: [
-        { main: '15 wall ball shots', sub: 'sentadilla profunda + lanzamiento' },
-        { main: '18 ring rows', sub: 'pecho a las anillas, cuerpo tenso' },
-        { main: '15 kettlebell swings americanos', genders: [{ icon: 'female', text: '12-16 kg' }, { icon: 'male', text: '20-24 kg' }] },
-        { main: '9 burpees', sub: 'pecho al suelo y salto vertical' },
+        { main: '15 wall ball shots' },
+        { main: '18 ring rows' },
+        { main: '15 kettlebell swings', genders: [{ icon: 'female', text: '12-16 kg' }, { icon: 'male', text: '20-24 kg' }] },
+        { main: '9 burpees' },
       ],
     },
   ],
@@ -789,7 +789,7 @@ function renderRoundsPills(rounds) {
     <div class="wod-progress-row">
       ${rounds.map((r) => `
         <div class="wod-progress-pill">
-          <span class="wod-progress-n">Ronda ${r.n}</span>
+          <span class="wod-progress-n">Ronda ${r.n}${r.marker || ''}</span>
           <span class="wod-progress-pct">${r.pct}</span>
         </div>
       `).join('')}
@@ -797,19 +797,54 @@ function renderRoundsPills(rounds) {
   `;
 }
 
+// El scroll interno enfoca un bloque a la vez (como una línea del tiempo) y,
+// al llegar al final (el centinela .wod-blocks-end), los tres se iluminan a
+// la vez para dar la visión de conjunto del entrenamiento completo.
 function renderFeaturedWod() {
   const body = document.getElementById('featured-wod-body');
-  body.innerHTML = `<div class="wod-blocks">${FEATURED_WOD.blocks.map((block) => `
-    <div class="wod-block ${block.color}">
-      <div class="wod-block-head">
-        <svg class="icon"><use href="#icon-${block.icon}"/></svg>
-        <span class="wod-block-title">${block.title}${block.badge ? ` <span class="wod-block-badge-inline">${block.badge}</span>` : ''}</span>
-      </div>
-      ${block.rounds ? renderRoundsPills(block.rounds) : ''}
-      <ul class="wod-block-list">${block.items.map(renderWodItem).join('')}</ul>
-      ${block.note ? `<p class="wod-block-note">${block.note}</p>` : ''}
+  body.innerHTML = `
+    <div class="wod-blocks-scroll" id="wod-blocks-scroll">
+      <div class="wod-blocks">${FEATURED_WOD.blocks.map((block) => `
+        <div class="wod-block ${block.color}">
+          <div class="wod-block-head">
+            <svg class="icon"><use href="#icon-${block.icon}"/></svg>
+            <span class="wod-block-title">${block.title}${block.badge ? ` <span class="wod-block-badge-inline">${block.badge}</span>` : ''}</span>
+          </div>
+          ${block.rounds ? renderRoundsPills(block.rounds) : ''}
+          <ul class="wod-block-list">${block.items.map(renderWodItem).join('')}</ul>
+          ${block.note ? `<p class="wod-block-note">${block.note}</p>` : ''}
+        </div>
+      `).join('')}</div>
+      <div class="wod-blocks-end"></div>
     </div>
-  `).join('')}</div>`;
+  `;
+}
+
+// Cálculo directo por scroll (no IntersectionObserver): así el primer
+// bloque queda enfocado nada más abrirse, sin esperar al primer callback
+// asíncrono del observer.
+function initWodBlocksScrollFocus() {
+  const scrollEl = document.getElementById('wod-blocks-scroll');
+  if (!scrollEl) return;
+
+  const blocks = [...scrollEl.querySelectorAll('.wod-block')];
+
+  function update() {
+    const atEnd = scrollEl.scrollTop + scrollEl.clientHeight >= scrollEl.scrollHeight - 4;
+    if (atEnd) {
+      blocks.forEach((b) => b.classList.add('in-focus'));
+      return;
+    }
+    const rootRect = scrollEl.getBoundingClientRect();
+    blocks.forEach((b) => {
+      const r = b.getBoundingClientRect();
+      const visible = Math.max(0, Math.min(r.bottom, rootRect.bottom) - Math.max(r.top, rootRect.top));
+      b.classList.toggle('in-focus', r.height > 0 && visible / r.height > 0.8);
+    });
+  }
+
+  scrollEl.addEventListener('scroll', update, { passive: true });
+  update();
 }
 
 // ===== Tab: WOD Heroes =====
@@ -1031,7 +1066,14 @@ function initWodsTab() {
   renderWodList();
 
   const featuredItem = document.getElementById('featured-wod-item');
-  featuredItem.querySelector('.item-top').addEventListener('click', () => toggleItemExpand(featuredItem));
+  featuredItem.querySelector('.item-top').addEventListener('click', () => {
+    const willExpand = !featuredItem.classList.contains('expanded');
+    // Se regenera cada vez que se abre para que la animación de entrada de
+    // los bloques se repita, no solo la primera vez.
+    if (willExpand) renderFeaturedWod();
+    toggleItemExpand(featuredItem);
+    if (willExpand) initWodBlocksScrollFocus();
+  });
   renderFeaturedWod();
 }
 

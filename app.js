@@ -729,26 +729,24 @@ const FEATURED_WOD = {
     {
       color: 'c0',
       icon: 'timer',
-      label: 'Bloque 1',
       title: 'Calentamiento y Core Inteligente',
       badge: "EMOM 6'",
       intro: 'Pon el cronómetro. Al inicio de cada minuto haz la tarea indicada y descansa lo que te sobre hasta el siguiente minuto:',
       items: [
-        '<strong>Minutos impares (1, 3, 5):</strong> 12 sentadillas libres + 20s plancha abdominal activa.',
-        '<strong>Minutos pares (2, 4, 6):</strong> 8 flexiones + 30s plancha lateral (15s derecho / 15s izquierdo).',
+        '<strong>Minutos impares 1, 3, 5:</strong> 12 sentadillas libres + 20s plancha abdominal activa.',
+        '<strong>Minutos pares 2, 4, 6:</strong> 8 flexiones + 30s plancha lateral, 15s por lado.',
       ],
     },
     {
       color: 'c1',
       icon: 'dumbbell',
-      label: 'Bloque 2',
       title: 'Fuerza y Estabilidad Progresiva',
       badge: '4 Rondas',
       intro: 'El mismo circuito 4 veces, subiendo el peso cada ronda. Descansa 90-120s entre rondas:',
       items: [
-        '12 pesos muertos con KB o barra',
-        '10 press militar con mancuernas',
-        '12 remos con mancuernas (torso a 45°)',
+        { main: '12 pesos muertos con KB o barra' },
+        { main: '10 press militar con mancuernas' },
+        { main: '12 remos con mancuernas', sub: 'torso a 45°' },
       ],
       rounds: [
         { n: 1, pct: '50%' },
@@ -761,32 +759,46 @@ const FEATURED_WOD = {
     {
       color: 'c2',
       icon: 'flame',
-      label: 'Bloque 3',
-      title: 'El WOD Estrella',
+      title: 'El Work Out del Día',
       badge: "AMRAP 15'",
       intro: 'Haz tantas rondas y repeticiones como sea posible en 15 minutos a un ritmo constante:',
       items: [
-        '15 wall ball shots (sentadilla profunda + lanzamiento)',
-        '18 ring rows (pecho a las anillas, cuerpo tenso)',
-        '15 kettlebell swings americanos (12-16 kg en mujeres / 20-24 kg en hombres)',
-        '9 burpees (pecho al suelo y salto vertical)',
+        { main: '15 wall ball shots', sub: 'sentadilla profunda + lanzamiento' },
+        { main: '18 ring rows', sub: 'pecho a las anillas, cuerpo tenso' },
+        { main: '15 kettlebell swings americanos', genders: [{ icon: 'female', text: '12-16 kg' }, { icon: 'male', text: '20-24 kg' }] },
+        { main: '9 burpees', sub: 'pecho al suelo y salto vertical' },
       ],
     },
   ],
 };
 
+// Cada ejercicio puede ser un string suelto (Bloque 1, con su propio <strong>
+// ya embebido) o un objeto { main, sub? , genders? }: sub es una nota (antes
+// entre paréntesis, ahora en línea aparte y en peso más ligero) y genders
+// sustituye "en mujeres / en hombres" por icono + cifra.
+function renderWodItem(item) {
+  if (typeof item === 'string') return `<li>${item}</li>`;
+  const subLine = item.genders
+    ? `<span class="wod-item-sub wod-item-genders">${item.genders.map((g) => `
+        <span class="wod-gender"><svg class="icon icon-sm"><use href="#icon-${g.icon}"/></svg>${g.text}</span>
+      `).join('')}</span>`
+    : item.sub
+      ? `<span class="wod-item-sub">${item.sub}</span>`
+      : '';
+  return `<li><span class="wod-item-main">${item.main}</span>${subLine}</li>`;
+}
+
 function renderFeaturedWod() {
   const body = document.getElementById('featured-wod-body');
-  body.innerHTML = FEATURED_WOD.blocks.map((block) => `
+  body.innerHTML = `<div class="wod-blocks">${FEATURED_WOD.blocks.map((block) => `
     <div class="wod-block ${block.color}">
       <div class="wod-block-head">
         <svg class="icon"><use href="#icon-${block.icon}"/></svg>
-        <span class="wod-block-label">${block.label}</span>
+        <span class="wod-block-title">${block.title}</span>
       </div>
-      <div class="wod-block-title">${block.title}</div>
       <div class="wod-block-badge">${block.badge}</div>
       <p class="wod-block-intro">${block.intro}</p>
-      <ul class="wod-block-list">${block.items.map((i) => `<li>${i}</li>`).join('')}</ul>
+      <ul class="wod-block-list">${block.items.map(renderWodItem).join('')}</ul>
       ${block.rounds ? `
         <div class="wod-progress-row">
           ${block.rounds.map((r) => `
@@ -799,7 +811,7 @@ function renderFeaturedWod() {
       ` : ''}
       ${block.note ? `<p class="wod-block-note">${block.note}</p>` : ''}
     </div>
-  `).join('');
+  `).join('')}</div>`;
 }
 
 // ===== Tab: WOD Heroes =====

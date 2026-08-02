@@ -731,18 +731,15 @@ const FEATURED_WOD = {
       icon: 'timer',
       title: 'Calentamiento y Core Inteligente',
       badge: "EMOM 6'",
-      intro: 'Pon el cronómetro. Al inicio de cada minuto haz la tarea indicada y descansa lo que te sobre hasta el siguiente minuto:',
       items: [
-        '<strong>Minutos impares 1, 3, 5:</strong> 12 sentadillas libres + 20s plancha abdominal activa.',
-        '<strong>Minutos pares 2, 4, 6:</strong> 8 flexiones + 30s plancha lateral, 15s por lado.',
+        { main: 'Minutos impares 1, 3, 5', sub: '12 sentadillas libres + 20s plancha abdominal activa.' },
+        { main: 'Minutos pares 2, 4, 6', sub: '8 flexiones + 30s plancha lateral, 15s por lado.' },
       ],
     },
     {
       color: 'c1',
       icon: 'dumbbell',
       title: 'Fuerza y Estabilidad Progresiva',
-      badge: '4 Rondas',
-      intro: 'El mismo circuito 4 veces, subiendo el peso cada ronda. Descansa 90-120s entre rondas:',
       items: [
         { main: '12 pesos muertos con KB o barra' },
         { main: '10 press militar con mancuernas' },
@@ -761,7 +758,6 @@ const FEATURED_WOD = {
       icon: 'flame',
       title: 'El Work Out del Día',
       badge: "AMRAP 15'",
-      intro: 'Haz tantas rondas y repeticiones como sea posible en 15 minutos a un ritmo constante:',
       items: [
         { main: '15 wall ball shots', sub: 'sentadilla profunda + lanzamiento' },
         { main: '18 ring rows', sub: 'pecho a las anillas, cuerpo tenso' },
@@ -772,12 +768,10 @@ const FEATURED_WOD = {
   ],
 };
 
-// Cada ejercicio puede ser un string suelto (Bloque 1, con su propio <strong>
-// ya embebido) o un objeto { main, sub? , genders? }: sub es una nota (antes
-// entre paréntesis, ahora en línea aparte y en peso más ligero) y genders
-// sustituye "en mujeres / en hombres" por icono + cifra.
+// Cada ejercicio es un objeto { main, sub?, genders? }: sub es una nota (antes
+// entre paréntesis o tras ":", ahora en línea aparte y en peso más ligero) y
+// genders sustituye "en mujeres / en hombres" por icono + cifra.
 function renderWodItem(item) {
-  if (typeof item === 'string') return `<li>${item}</li>`;
   const subLine = item.genders
     ? `<span class="wod-item-sub wod-item-genders">${item.genders.map((g) => `
         <span class="wod-gender"><svg class="icon icon-sm"><use href="#icon-${g.icon}"/></svg>${g.text}</span>
@@ -788,27 +782,31 @@ function renderWodItem(item) {
   return `<li><span class="wod-item-main">${item.main}</span>${subLine}</li>`;
 }
 
+// La progresión de carga (50/60/70/80%) es el dato clave del Bloque 2, así
+// que ocupa el sitio del badge en vez de un texto "4 Rondas" aparte.
+function renderRoundsPills(rounds) {
+  return `
+    <div class="wod-progress-row">
+      ${rounds.map((r) => `
+        <div class="wod-progress-pill">
+          <span class="wod-progress-n">Ronda ${r.n}</span>
+          <span class="wod-progress-pct">${r.pct}</span>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
 function renderFeaturedWod() {
   const body = document.getElementById('featured-wod-body');
   body.innerHTML = `<div class="wod-blocks">${FEATURED_WOD.blocks.map((block) => `
     <div class="wod-block ${block.color}">
       <div class="wod-block-head">
         <svg class="icon"><use href="#icon-${block.icon}"/></svg>
-        <span class="wod-block-title">${block.title}</span>
+        <span class="wod-block-title">${block.title}${block.badge ? ` <span class="wod-block-badge-inline">${block.badge}</span>` : ''}</span>
       </div>
-      <div class="wod-block-badge">${block.badge}</div>
-      <p class="wod-block-intro">${block.intro}</p>
+      ${block.rounds ? renderRoundsPills(block.rounds) : ''}
       <ul class="wod-block-list">${block.items.map(renderWodItem).join('')}</ul>
-      ${block.rounds ? `
-        <div class="wod-progress-row">
-          ${block.rounds.map((r) => `
-            <div class="wod-progress-pill">
-              <span class="wod-progress-n">Ronda ${r.n}</span>
-              <span class="wod-progress-pct">${r.pct}</span>
-            </div>
-          `).join('')}
-        </div>
-      ` : ''}
       ${block.note ? `<p class="wod-block-note">${block.note}</p>` : ''}
     </div>
   `).join('')}</div>`;

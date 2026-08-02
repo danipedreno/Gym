@@ -112,7 +112,10 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
   <section id="tab-registrar" class="tab">
 
     <div class="rm-entry-plain">
-      <input type="number" id="rm-input" class="rm-big-input" inputmode="decimal" step="0.5" min="0" placeholder="0">
+      <div class="rm-value">
+        <input type="number" id="rm-input" class="rm-big-input" inputmode="decimal" step="0.5" min="0" placeholder="0">
+        <span class="rm-unit">KG</span>
+      </div>
     </div>
 
     <div class="material-row" id="equipment-selector">
@@ -161,8 +164,8 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
       <div class="rm-detail-header">
         <button type="button" class="icon-btn" id="rms-back-btn" aria-label="Volver al buscador"><svg class="icon"><use href="#icon-arrow-left"/></svg></button>
         <div class="rm-detail-title">
+          <span class="rm-list-icon-wrap" id="rms-detail-icon-wrap"></span>
           <div class="item-title" id="rms-detail-exercise"></div>
-          <span class="badge" id="rms-detail-badge"><span class="badge-dot"></span><span id="rms-detail-equipment-label"></span></span>
         </div>
         <button type="button" class="icon-btn" id="rms-edit-btn" aria-label="Editar RM"><svg class="icon"><use href="#icon-edit"/></svg></button>
       </div>
@@ -174,7 +177,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
       <div class="pct-grid" id="rms-pct-grid"></div>
 
       <label class="field-label small">Progreso de este ejercicio</label>
-      <div id="rms-progress-chart-wrap"></div>
+      <div class="glass-panel" id="rms-progress-chart-wrap"></div>
       <p class="empty hidden" id="rms-progress-empty">Aún no hay suficiente histórico para este ejercicio.</p>
       <div class="pct-grid" id="rms-progress-stats"></div>
     </div>

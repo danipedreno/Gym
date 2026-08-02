@@ -233,23 +233,32 @@ select:focus, input:focus { background: var(--yellow); }
 .field-col { flex: 1; min-width: 0; }
 
 .rm-entry-plain {
-  text-align: center;
+  display: flex;
+  justify-content: center;
   padding: 28px 0 22px;
+}
+.rm-value { display: inline-flex; align-items: baseline; gap: 8px; }
+.rm-unit {
+  font-family: var(--font-display);
+  font-size: clamp(1.4rem, 6vw, 2rem);
+  font-weight: 700;
+  color: var(--text-dim);
+  padding-bottom: 0.2em;
 }
 input[type="number"].rm-big-input {
   background: transparent;
   border: none;
   border-radius: 0;
-  text-align: center;
+  text-align: right;
   font-family: var(--font-display);
-  font-size: clamp(5rem, 26vw, 8.5rem);
+  font-size: clamp(5.5rem, 28vw, 9rem);
   font-weight: 800;
   letter-spacing: -0.02em;
   line-height: 1;
   color: var(--ink);
   padding: 8px 0 18px;
   margin-bottom: 4px;
-  width: 100%;
+  width: 5.5ch;
 }
 .rm-big-input::placeholder { color: rgba(20, 18, 15, 0.14); }
 .rm-big-input:focus { border: none; background: transparent; }
@@ -263,7 +272,7 @@ input[type="number"].rm-big-input {
 .rm-save-block { text-align: center; margin-top: 20px; }
 
 .rm-detail-header { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
-.rm-detail-title { flex: 1; text-align: center; }
+.rm-detail-title { flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; }
 .icon-btn {
   background: var(--white);
   border: 2px solid var(--ink);
@@ -329,9 +338,12 @@ input[type="number"].bw-input {
   border: none;
   border-radius: 0;
   padding: 0;
-  text-align: left;
+  /* A la derecha (no a la izquierda): así los dígitos quedan siempre pegados
+     a "Kg", sin hueco cuando el número es corto (ej. "72" en una caja
+     reservada para 4 caracteres). */
+  text-align: right;
   font-family: var(--font-display);
-  font-size: clamp(2.6rem, 13vw, 3.4rem);
+  font-size: clamp(3rem, 15vw, 3.8rem);
   font-weight: 800;
   letter-spacing: -0.02em;
   color: var(--ink);
@@ -514,6 +526,8 @@ input[type="number"].bw-input {
   animation: dot-in .25s var(--ease) forwards;
 }
 @keyframes dot-in { to { opacity: 1; } }
+.chart-dot, .chart-dot-hit { cursor: pointer; }
+.chart-tooltip { pointer-events: none; }
 
 .list { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
 
@@ -539,23 +553,6 @@ input[type="number"].bw-input {
 }
 .item-title { font-weight: 700; font-size: 0.95rem; letter-spacing: -0.01em; }
 .item-sub { font-size: 0.8rem; color: var(--text-dim); margin-top: 2px; }
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 0.7rem;
-  font-weight: 700;
-  padding: 4px 10px 4px 8px;
-  border-radius: 0;
-  color: var(--ink);
-  background: var(--white);
-  border: 2px solid var(--ink);
-  white-space: nowrap;
-}
-.badge-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-.badge-kettlebell .badge-dot { background: var(--kettlebell); }
-.badge-dumbbell .badge-dot { background: var(--dumbbell); }
-.badge-barbell .badge-dot { background: var(--barbell); }
 
 .item-detail {
   height: 0;

@@ -137,8 +137,6 @@ const STANDARD_KB_KG = [8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52];
 // Tamaños reales de dumbbell disponibles en el box.
 const STANDARD_DB_KG = [2.5, 5, 7.5, 10, 12.5, 15, 17.5, 20];
 
-const EQUIPMENT_LABEL = { kettlebell: 'Kettlebell', dumbbell: 'Dumbbell', barbell: 'Barbell' };
-
 // ===== Almacenamiento (localStorage) =====
 const Store = {
   read(key, fallback) {
@@ -502,6 +500,10 @@ function initRegistrarTab() {
     errorHint.classList.add('hidden');
     saveRm(currentEquipment, exercise, value);
     rmInputDirty = false;
+    // El valor se deja puesto explícitamente (no solo confiando en que
+    // refreshRmField lo recupere de lo guardado): así nunca se puede borrar
+    // justo al guardar, pase lo que pase con el resto del estado.
+    rmInput.value = value;
     refreshRmField();
     showSaveSuccess();
   });
@@ -547,8 +549,7 @@ function showRmDetail(equipment, exercise) {
   document.getElementById('rms-detail-card').classList.remove('hidden');
 
   document.getElementById('rms-detail-exercise').textContent = exercise;
-  document.getElementById('rms-detail-equipment-label').textContent = EQUIPMENT_LABEL[equipment];
-  document.getElementById('rms-detail-badge').className = `badge badge-${equipment}`;
+  document.getElementById('rms-detail-icon-wrap').innerHTML = `<svg class="icon"><use href="#icon-${equipment}"/></svg>`;
 
   const stored = getRm(equipment, exercise);
   document.getElementById('rms-current-value').textContent = stored ? `${stored.rm} kg` : '— kg';
@@ -956,7 +957,29 @@ function renderTrendChart(points, { wrapEl, emptyEl, statsEl, unit = 'kg', ariaL
 
   const linePoints = points.map((p, i) => `${xAt(i)},${yAt(p.weight)}`).join(' ');
   const dots = points
-    .map((p, i) => `<circle class="chart-dot" style="animation-delay:${0.7 + i * 0.05}s" cx="${xAt(i)}" cy="${yAt(p.weight)}" r="3.5" fill="var(--accent)"/>`)
+    .map((p, i) => `<circle class="chart-dot" data-idx="${i}" style="animation-delay:${0.7 + i * 0.05}s" cx="${xAt(i)}" cy="${yAt(p.weight)}" r="4" fill="var(--accent)"/>`)
+    .join('');
+  // Círculo invisible más grande encima de cada punto: solo para que el dedo
+  // tenga un blanco decente al tocar (el punto visible es muy pequeño).
+  const dotHitAreas = points
+    .map((p, i) => `<circle class="chart-dot-hit" data-idx="${i}" cx="${xAt(i)}" cy="${yAt(p.weight)}" r="13" fill="transparent"/>`)
+    .join('');
+
+  // Tooltip oculto por punto: al tocar el punto se ve cuánto pesaba ese día
+  // (la línea sola no deja claro qué peso es cada marca).
+  const tooltips = points
+    .map((p, i) => {
+      const label = `${p.weight} ${unit}`;
+      const boxW = Math.max(34, label.length * 5.6 + 10);
+      const tx = Math.min(Math.max(xAt(i), padL + boxW / 2), W - padR - boxW / 2);
+      const ty = Math.max(yAt(p.weight) - 14, 11);
+      return `
+        <g class="chart-tooltip hidden" data-idx="${i}">
+          <rect x="${tx - boxW / 2}" y="${ty - 11}" width="${boxW}" height="16" fill="var(--ink)"/>
+          <text x="${tx}" y="${ty}" font-size="9" font-weight="700" fill="var(--paper)" text-anchor="middle">${label}</text>
+        </g>
+      `;
+    })
     .join('');
 
   const labelIdxs = points.length > 2
@@ -973,8 +996,18 @@ function renderTrendChart(points, { wrapEl, emptyEl, statsEl, unit = 'kg', ariaL
       ${points.length > 1 ? `<polyline class="chart-line" pathLength="1" points="${linePoints}" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>` : ''}
       ${dots}
       ${dateLabels}
+      ${dotHitAreas}
+      ${tooltips}
     </svg>
   `;
+
+  // Tocar un punto muestra su peso; tocar otro cambia cuál se ve (uno a la vez).
+  wrapEl.querySelectorAll('.chart-dot, .chart-dot-hit').forEach((el) => {
+    el.addEventListener('click', () => {
+      const idx = el.dataset.idx;
+      wrapEl.querySelectorAll('.chart-tooltip').forEach((t) => t.classList.toggle('hidden', t.dataset.idx !== idx));
+    });
+  });
 
   const first = points[0];
   const last = points[points.length - 1];

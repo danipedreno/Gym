@@ -972,6 +972,59 @@ input[type="date"].modal-date-input::-webkit-calendar-picker-indicator { cursor:
 .timer-main-btn { min-width: 190px; margin-top: 0; }
 .timer-controls .icon-btn { width: 40px; height: 40px; }
 
+/* "Rondas": para llevar la cuenta de series completas durante un WOD, sin
+   tener que apuntarlo en ningún otro sitio. Vacíos por defecto, se rellenan
+   al tocarlos (y del color de la paleta que le toque, no siempre el mismo). */
+.rounds-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.rounds-title { margin-bottom: 0; }
+.rounds-reset-btn {
+  background: none;
+  border: none;
+  padding: 4px 0;
+  font-family: var(--font);
+  font-weight: 800;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--text-dim);
+  cursor: pointer;
+}
+.rounds-reset-btn:active { opacity: 0.55; }
+
+.rounds-grid { display: flex; flex-direction: column; gap: 14px; }
+.rounds-row { display: flex; justify-content: center; gap: 14px; }
+
+.round-dot {
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 2px solid var(--ink);
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: var(--ink);
+  cursor: pointer;
+  transition: background-color .2s var(--ease), color .2s var(--ease);
+}
+.round-dot.c0.filled { background: var(--teal); color: var(--white); }
+.round-dot.c1.filled { background: var(--yellow); color: var(--ink); }
+.round-dot.c2.filled { background: var(--navy); color: var(--white); }
+.round-dot.c3.filled { background: var(--pink); color: var(--ink); }
+.round-dot.c4.filled { background: var(--olive); color: var(--white); }
+.round-dot.c5.filled { background: var(--sage); color: var(--ink); }
+.round-dot.pop { animation: round-pop .4s var(--ease); }
+@keyframes round-pop {
+  0% { transform: scale(0.7); }
+  55% { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}
+
 /* Cuenta atrás a pantalla completa antes de arrancar el timer: negro, texto naranja */
 .countdown-intro {
   position: fixed;

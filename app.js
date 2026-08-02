@@ -1673,6 +1673,48 @@ function initTimerTab() {
 
   updateSetupVisibility();
   updateTimerDisplay();
+  initRoundsTracker();
+}
+
+// ===== "Rondas": contador de series completas durante un WOD =====
+const ROUND_ROWS = [[1, 2, 3], [4, 5, 6, 7], [8, 9, 10]];
+const completedRounds = new Set();
+
+function renderRoundsGrid() {
+  const grid = document.getElementById('rounds-grid');
+  grid.innerHTML = ROUND_ROWS.map((row) => `
+    <div class="rounds-row">
+      ${row.map((n) => `
+        <button type="button" class="round-dot c${(n - 1) % 6}${completedRounds.has(n) ? ' filled' : ''}" data-round="${n}">${n}</button>
+      `).join('')}
+    </div>
+  `).join('');
+
+  grid.querySelectorAll('.round-dot').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const n = Number(btn.dataset.round);
+      if (completedRounds.has(n)) {
+        completedRounds.delete(n);
+        btn.classList.remove('filled');
+      } else {
+        completedRounds.add(n);
+        btn.classList.add('filled');
+      }
+      // Quitar+reflow+añadir para que la animación se repita aunque se
+      // rellene/vacíe varias veces seguidas.
+      btn.classList.remove('pop');
+      void btn.offsetWidth;
+      btn.classList.add('pop');
+    });
+  });
+}
+
+function initRoundsTracker() {
+  document.getElementById('rounds-reset-btn').addEventListener('click', () => {
+    completedRounds.clear();
+    renderRoundsGrid();
+  });
+  renderRoundsGrid();
 }
 
 // ===== Navegación entre pestañas =====

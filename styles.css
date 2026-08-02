@@ -888,11 +888,21 @@ input[type="date"].modal-date-input::-webkit-calendar-picker-indicator { cursor:
 .wod-block.c1 { background: var(--yellow); color: var(--ink); }
 .wod-block.c2 { background: var(--navy); color: var(--white); }
 
-.wod-round { margin-bottom: 12px; }
-.wod-round:last-child { margin-bottom: 0; }
-.wod-round-head { display: flex; align-items: baseline; gap: 8px; margin-bottom: 4px; }
-.wod-round-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; opacity: 0.75; }
-.wod-round-pct { font-family: var(--font-display); font-size: 1.25rem; font-weight: 800; letter-spacing: -0.01em; }
+/* Progresión de carga: el circuito de ejercicios se lista una sola vez (es
+   el mismo en las 4 rondas), y aquí solo cambia el % — mostrarlo como tira
+   de pastillas evita repetir la misma lista de ejercicios cuatro veces. */
+.wod-progress-row { display: flex; gap: 6px; margin: 10px 0; }
+.wod-progress-pill {
+  flex: 1;
+  min-width: 0;
+  border: 2px solid var(--ink);
+  background: rgba(255, 255, 255, 0.4);
+  padding: 6px 2px;
+  text-align: center;
+}
+.wod-progress-n { display: block; font-size: 0.58rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.02em; opacity: 0.75; }
+.wod-progress-pct { display: block; font-family: var(--font-display); font-size: 1.15rem; font-weight: 800; letter-spacing: -0.01em; }
+.wod-block-note { font-size: 0.74rem; font-style: italic; opacity: 0.82; line-height: 1.35; margin: 0; }
 
 /* ===== Timer ===== */
 /* Selector Countdown/Cronómetro: texto plano, el inactivo se ve atenuado

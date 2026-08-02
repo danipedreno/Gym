@@ -744,13 +744,19 @@ const FEATURED_WOD = {
       label: 'Bloque 2',
       title: 'Fuerza y Estabilidad Progresiva',
       badge: '4 Rondas',
-      intro: 'Realiza los 3 ejercicios en orden. Descansa entre 90 y 120 segundos tras cada ronda antes de subir la carga para la siguiente:',
-      rounds: [
-        { n: 1, pct: '50%', items: ['12 pesos muertos con KB o barra', '10 press militar con mancuernas', '12 remos con mancuernas (torso a 45°)'] },
-        { n: 2, pct: '60%', items: ['12 pesos muertos', '10 press militar', '12 remos'] },
-        { n: 3, pct: '70%', items: ['12 pesos muertos', '10 press militar', '12 remos'] },
-        { n: 4, pct: '80%', items: ['12 pesos muertos (ajusta a 8-10 si pesa mucho)', '10 press militar (ajusta a 8 si pesa mucho)', '12 remos (ajusta a 8-10 si pesa mucho)'] },
+      intro: 'El mismo circuito 4 veces, subiendo el peso cada ronda. Descansa 90-120s entre rondas:',
+      items: [
+        '12 pesos muertos con KB o barra',
+        '10 press militar con mancuernas',
+        '12 remos con mancuernas (torso a 45°)',
       ],
+      rounds: [
+        { n: 1, pct: '50%' },
+        { n: 2, pct: '60%' },
+        { n: 3, pct: '70%' },
+        { n: 4, pct: '80%' },
+      ],
+      note: 'Ronda 4: si pesa mucho, baja a 8-10 reps en muerto y remos, y a 8 en press militar.',
     },
     {
       color: 'c2',
@@ -780,14 +786,18 @@ function renderFeaturedWod() {
       <div class="wod-block-title">${block.title}</div>
       <div class="wod-block-badge">${block.badge}</div>
       <p class="wod-block-intro">${block.intro}</p>
-      ${block.rounds
-        ? block.rounds.map((r) => `
-          <div class="wod-round">
-            <div class="wod-round-head"><span class="wod-round-label">Ronda ${r.n}</span><span class="wod-round-pct">${r.pct}</span></div>
-            <ul class="wod-block-list">${r.items.map((i) => `<li>${i}</li>`).join('')}</ul>
-          </div>
-        `).join('')
-        : `<ul class="wod-block-list">${block.items.map((i) => `<li>${i}</li>`).join('')}</ul>`}
+      <ul class="wod-block-list">${block.items.map((i) => `<li>${i}</li>`).join('')}</ul>
+      ${block.rounds ? `
+        <div class="wod-progress-row">
+          ${block.rounds.map((r) => `
+            <div class="wod-progress-pill">
+              <span class="wod-progress-n">Ronda ${r.n}</span>
+              <span class="wod-progress-pct">${r.pct}</span>
+            </div>
+          `).join('')}
+        </div>
+      ` : ''}
+      ${block.note ? `<p class="wod-block-note">${block.note}</p>` : ''}
     </div>
   `).join('');
 }

@@ -1018,14 +1018,9 @@ const WOD_HEROES = [
 
 function renderWodList() {
   const container = document.getElementById('wod-list');
-  const empty = document.getElementById('wod-empty');
-  const query = document.getElementById('wod-search').value;
-  const wods = WOD_HEROES.filter((w) => matchesQuery(w.name, query));
-
   container.innerHTML = '';
-  empty.classList.toggle('hidden', wods.length > 0);
 
-  wods.forEach((wod, i) => {
+  WOD_HEROES.forEach((wod, i) => {
     const item = document.createElement('div');
     item.className = 'item';
     item.style.animationDelay = `${i * 30}ms`;
@@ -1051,18 +1046,6 @@ function renderWodList() {
 }
 
 function initWodsTab() {
-  const search = document.getElementById('wod-search');
-  const clearBtn = document.getElementById('wod-search-clear');
-  search.addEventListener('input', () => {
-    clearBtn.classList.toggle('hidden', !search.value);
-    renderWodList();
-  });
-  clearBtn.addEventListener('click', () => {
-    search.value = '';
-    clearBtn.classList.add('hidden');
-    renderWodList();
-    search.focus();
-  });
   renderWodList();
 
   const featuredItem = document.getElementById('featured-wod-item');

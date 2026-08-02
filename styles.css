@@ -174,11 +174,10 @@ select:focus, input:focus { background: var(--yellow); }
    (igual que un bloque de la rueda "Year in Sport"), atenuado hasta elegirlo. */
 /* El fondo negro del propio row hace de línea entre botones (gap 2px sin
    fondo dejaba huecos color página, no negros). */
-.material-row { display: flex; gap: 2px; margin-bottom: 16px; border: 2px solid var(--ink); background: var(--ink); }
-/* El fondo de cada material es fijo (activo o no, mismo color: apagarlo con
-   opacity general lo dejaba sucio). Lo que se apaga es el icono+texto, no el
-   bloque de color entero — así se ve claramente cuál está elegido sin perder
-   el color de identidad de cada material. */
+.material-row { display: flex; gap: 2px; margin-bottom: 24px; border: 2px solid var(--ink); background: var(--ink); }
+/* El anillo grueso no dejaba claro cuál estaba elegido: ahora el activo se
+   nota como en las tiles de "tu composición" — bloque de color sólido, lleno
+   de identidad — mientras el resto se queda neutro (blanco, texto tenue). */
 .material-btn {
   flex: 1;
   display: flex;
@@ -187,22 +186,19 @@ select:focus, input:focus { background: var(--yellow); }
   gap: 6px;
   padding: 14px 6px;
   border: none;
+  background: var(--white);
+  color: var(--text-dim);
   font-family: var(--font);
   font-weight: 700;
   font-size: 0.85rem;
   text-transform: uppercase;
   letter-spacing: 0.02em;
-  box-shadow: inset 0 0 0 0 var(--ink);
-  transition: box-shadow .2s var(--ease), color .2s var(--ease), transform .15s var(--ease);
+  transition: background-color .2s var(--ease), color .2s var(--ease), transform .15s var(--ease);
 }
-.material-btn[data-equipment="kettlebell"] { background: var(--navy); color: rgba(255, 255, 255, 0.22); }
-.material-btn[data-equipment="dumbbell"] { background: var(--pink); color: rgba(20, 18, 15, 0.18); }
-.material-btn[data-equipment="barbell"] { background: var(--teal); color: rgba(255, 255, 255, 0.22); }
-.material-btn.active[data-equipment="kettlebell"],
-.material-btn.active[data-equipment="barbell"] { color: var(--white); }
-.material-btn.active[data-equipment="dumbbell"] { color: var(--ink); }
+.material-btn.active[data-equipment="kettlebell"] { background: var(--pink); color: var(--ink); }
+.material-btn.active[data-equipment="dumbbell"] { background: var(--olive); color: var(--white); }
+.material-btn.active[data-equipment="barbell"] { background: var(--sage); color: var(--ink); }
 .material-btn:active { transform: scale(0.96); }
-.material-btn.active { box-shadow: inset 0 0 0 3px var(--ink); }
 
 /* Filtro de material en Mis RMs: mismo criterio — fondo fijo, se apaga el
    icono, y el activo lleva anillo blanco. */
@@ -293,7 +289,7 @@ input[type="number"].rm-big-input {
 .bw-row { display: flex; flex-direction: column; gap: 14px; }
 .bw-top-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .bw-top-label { margin-bottom: 0; white-space: nowrap; }
-.bw-value { display: flex; align-items: baseline; gap: 5px; flex: 0 0 auto; }
+.bw-value { display: flex; align-items: baseline; justify-content: center; gap: 5px; align-self: center; }
 .bw-unit {
   font-family: var(--font-display);
   font-size: 1.3rem;
@@ -963,7 +959,7 @@ input[type="date"].modal-date-input::-webkit-calendar-picker-indicator { cursor:
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 28px;
+  gap: 14px;
   padding-bottom: 24px;
   touch-action: pan-y;
 }

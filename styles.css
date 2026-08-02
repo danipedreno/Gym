@@ -195,9 +195,12 @@ select:focus, input:focus { background: var(--yellow); }
   letter-spacing: 0.02em;
   transition: background-color .2s var(--ease), color .2s var(--ease), transform .15s var(--ease);
 }
-.material-btn.active[data-equipment="kettlebell"] { background: var(--pink); color: var(--ink); }
-.material-btn.active[data-equipment="dumbbell"] { background: var(--olive); color: var(--white); }
-.material-btn.active[data-equipment="barbell"] { background: var(--sage); color: var(--ink); }
+/* Mismos colores por material que en Mis RMs (.material-circle-btn más abajo):
+   un material tiene siempre el mismo color en toda la app, no uno distinto
+   por pantalla. */
+.material-btn.active[data-equipment="kettlebell"] { background: var(--navy); color: var(--white); }
+.material-btn.active[data-equipment="dumbbell"] { background: var(--pink); color: var(--ink); }
+.material-btn.active[data-equipment="barbell"] { background: var(--teal); color: var(--white); }
 .material-btn:active { transform: scale(0.96); }
 
 /* Filtro de material en Mis RMs: mismo criterio — fondo fijo, se apaga el
@@ -503,6 +506,12 @@ input[type="date"].modal-date-input::-webkit-calendar-picker-indicator { cursor:
 /* El hero (ej. IMC) siempre queda neutro: es la cifra principal, no una más
    del ciclo de color (mismo patrón que "DAYS ACTIVE" en la referencia). */
 .pct-tile.hero { background: var(--paper); color: var(--ink); }
+/* Color explícito (no el ciclo por posición): las tres tiles de "Apuntar
+   peso" comparten pantalla con las de "Tu composición" (neutro/amarillo/
+   navy), así que llevan otro trío para no repetir color en la misma vista. */
+.pct-tile.c-teal { background: var(--teal); color: var(--white); }
+.pct-tile.c-pink { background: var(--pink); color: var(--ink); }
+.pct-tile.c-olive { background: var(--olive); color: var(--white); }
 @keyframes tile-in { to { opacity: 1; transform: translateY(0) scale(1); } }
 .pct-tile-label {
   display: flex;
@@ -975,6 +984,9 @@ input[type="date"].modal-date-input::-webkit-calendar-picker-indicator { cursor:
   --timer-num-size: clamp(5rem, 26vw, 8.5rem);
 }
 
+/* 3 franjas visibles (arriba/activa/abajo), no solo 1: antes el viewport
+   medía justo lo que un item, así que nunca se veía asomar el número
+   anterior ni el siguiente y no se sentía como una rueda de verdad. */
 .wheel-picker {
   position: relative;
   display: flex;
@@ -982,24 +994,32 @@ input[type="date"].modal-date-input::-webkit-calendar-picker-indicator { cursor:
   justify-content: center;
   gap: 0;
   font-size: var(--timer-num-size);
-  height: 1.3em;
+  height: 2.25em;
 }
 .wheel-col {
   width: 1.15em;
-  height: 1.3em;
+  height: 2.25em;
   overflow-y: scroll;
   scroll-snap-type: y mandatory;
   scrollbar-width: none;
+  /* Se desvanecen hacia arriba/abajo en vez de cortarse en seco: refuerza la
+     sensación de rueda que gira, no de lista con scroll. */
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 26%, black 74%, transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0%, black 26%, black 74%, transparent 100%);
 }
 .wheel-col::-webkit-scrollbar { display: none; }
 .wheel-col::before,
 .wheel-col::after {
   content: '';
   display: block;
-  height: 0;
+  height: 0.75em;
 }
 .wheel-item {
-  height: calc(var(--timer-num-size) * 1.3);
+  /* calc(), no 0.75em: el propio item cambia de font-size (activo/inactivo),
+     y "em" en height se compone con el font-size del propio elemento — con
+     0.75em cada item inactivo salía más bajo que el activo y descuadraba
+     todo el desplazamiento del scroll. */
+  height: calc(var(--timer-num-size) * 0.75);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1007,7 +1027,7 @@ input[type="date"].modal-date-input::-webkit-calendar-picker-indicator { cursor:
   font-family: var(--font-display);
   font-size: 0.34em;
   font-weight: 700;
-  color: rgba(20, 18, 15, 0.22);
+  color: rgba(20, 18, 15, 0.35);
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
   transition: color .15s var(--ease), font-size .15s var(--ease);

@@ -1167,9 +1167,9 @@ function renderTrendChart(points, { wrapEl, emptyEl, statsEl, unit = 'kg', ariaL
   const first = points[0];
   const last = points[points.length - 1];
 
-  const statTile = (label, valueText, subText) => `
-    <div class="pct-tile">
-      <div class="pct-tile-label">${label}</div>
+  const statTile = (icon, label, valueText, subText, colorClass = '') => `
+    <div class="pct-tile ${colorClass}">
+      <div class="pct-tile-label"><svg class="icon"><use href="#icon-${icon}"/></svg> ${label}</div>
       <div class="pct-tile-value">${valueText}</div>
       <div class="pct-tile-sub">${subText}</div>
     </div>
@@ -1179,15 +1179,15 @@ function renderTrendChart(points, { wrapEl, emptyEl, statsEl, unit = 'kg', ariaL
     const diff = last.weight - first.weight;
     const sign = diff > 0 ? '+' : '';
     statsEl.innerHTML =
-      statTile('Primero', `${first.weight} ${unit}`, fmtShortDate(first.date)) +
-      statTile('Último', `${last.weight} ${unit}`, fmtShortDate(last.date)) +
-      statTile('Diferencia', `${sign}${diff.toFixed(1)} ${unit}`, 'desde el primero');
+      statTile('calendar', 'Primero', `${first.weight} ${unit}`, fmtShortDate(first.date), 'c-teal') +
+      statTile('chart', 'Último', `${last.weight} ${unit}`, fmtShortDate(last.date), 'c-pink') +
+      statTile('scale', 'Diferencia', `${sign}${diff.toFixed(1)} ${unit}`, 'desde el primero', 'c-olive');
   } else {
     const best = points.reduce((a, b) => (b.weight > a.weight ? b : a));
     statsEl.innerHTML =
-      statTile('Primero', `${first.weight} ${unit}`, fmtShortDate(first.date)) +
-      statTile('Mejor', `${best.weight} ${unit}`, fmtShortDate(best.date)) +
-      statTile('Último', `${last.weight} ${unit}`, fmtShortDate(last.date));
+      statTile('calendar', 'Primero', `${first.weight} ${unit}`, fmtShortDate(first.date)) +
+      statTile('target', 'Mejor', `${best.weight} ${unit}`, fmtShortDate(best.date)) +
+      statTile('chart', 'Último', `${last.weight} ${unit}`, fmtShortDate(last.date));
   }
 }
 

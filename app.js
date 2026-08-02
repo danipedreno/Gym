@@ -723,6 +723,75 @@ function initRmsTab() {
   renderRmsSearchResults('');
 }
 
+// ===== WOD Destacado: entreno completo de 3 bloques, fijado arriba del buscador =====
+const FEATURED_WOD = {
+  blocks: [
+    {
+      color: 'c0',
+      icon: 'timer',
+      label: 'Bloque 1',
+      title: 'Calentamiento y Core Inteligente',
+      badge: "EMOM 6'",
+      intro: 'Pon el cronómetro. Al inicio de cada minuto haz la tarea indicada y descansa lo que te sobre hasta el siguiente minuto:',
+      items: [
+        '<strong>Minutos impares (1, 3, 5):</strong> 12 sentadillas libres + 20s plancha abdominal activa.',
+        '<strong>Minutos pares (2, 4, 6):</strong> 8 flexiones + 30s plancha lateral (15s derecho / 15s izquierdo).',
+      ],
+    },
+    {
+      color: 'c1',
+      icon: 'dumbbell',
+      label: 'Bloque 2',
+      title: 'Fuerza y Estabilidad Progresiva',
+      badge: '4 Rondas',
+      intro: 'Realiza los 3 ejercicios en orden. Descansa entre 90 y 120 segundos tras cada ronda antes de subir la carga para la siguiente:',
+      rounds: [
+        { n: 1, pct: '50%', items: ['12 pesos muertos con KB o barra', '10 press militar con mancuernas', '12 remos con mancuernas (torso a 45°)'] },
+        { n: 2, pct: '60%', items: ['12 pesos muertos', '10 press militar', '12 remos'] },
+        { n: 3, pct: '70%', items: ['12 pesos muertos', '10 press militar', '12 remos'] },
+        { n: 4, pct: '80%', items: ['12 pesos muertos (ajusta a 8-10 si pesa mucho)', '10 press militar (ajusta a 8 si pesa mucho)', '12 remos (ajusta a 8-10 si pesa mucho)'] },
+      ],
+    },
+    {
+      color: 'c2',
+      icon: 'flame',
+      label: 'Bloque 3',
+      title: 'El WOD Estrella',
+      badge: "AMRAP 15'",
+      intro: 'Haz tantas rondas y repeticiones como sea posible en 15 minutos a un ritmo constante:',
+      items: [
+        '15 wall ball shots (sentadilla profunda + lanzamiento)',
+        '18 ring rows (pecho a las anillas, cuerpo tenso)',
+        '15 kettlebell swings americanos (12-16 kg en mujeres / 20-24 kg en hombres)',
+        '9 burpees (pecho al suelo y salto vertical)',
+      ],
+    },
+  ],
+};
+
+function renderFeaturedWod() {
+  const body = document.getElementById('featured-wod-body');
+  body.innerHTML = FEATURED_WOD.blocks.map((block) => `
+    <div class="wod-block ${block.color}">
+      <div class="wod-block-head">
+        <svg class="icon"><use href="#icon-${block.icon}"/></svg>
+        <span class="wod-block-label">${block.label}</span>
+      </div>
+      <div class="wod-block-title">${block.title}</div>
+      <div class="wod-block-badge">${block.badge}</div>
+      <p class="wod-block-intro">${block.intro}</p>
+      ${block.rounds
+        ? block.rounds.map((r) => `
+          <div class="wod-round">
+            <div class="wod-round-head"><span class="wod-round-label">Ronda ${r.n}</span><span class="wod-round-pct">${r.pct}</span></div>
+            <ul class="wod-block-list">${r.items.map((i) => `<li>${i}</li>`).join('')}</ul>
+          </div>
+        `).join('')
+        : `<ul class="wod-block-list">${block.items.map((i) => `<li>${i}</li>`).join('')}</ul>`}
+    </div>
+  `).join('');
+}
+
 // ===== Tab: WOD Heroes =====
 // 25 WODs para entrenar en casa, sin material
 // (fuente: https://www.zonawod.com/crossfit-en-casa-25-wods-mejorar-fisico/).
@@ -940,6 +1009,10 @@ function initWodsTab() {
     search.focus();
   });
   renderWodList();
+
+  const featuredItem = document.getElementById('featured-wod-item');
+  featuredItem.querySelector('.item-top').addEventListener('click', () => toggleItemExpand(featuredItem));
+  renderFeaturedWod();
 }
 
 // ===== Tab: Peso (peso corporal + composición) =====

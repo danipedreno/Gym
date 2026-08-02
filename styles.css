@@ -291,7 +291,8 @@ input[type="number"].rm-big-input {
 /* "Apuntar peso": fecha + Guardar arriba en su propia línea, y debajo el
    peso a toda pantalla, protagonista, con "Kg" pegado detrás. */
 .bw-row { display: flex; flex-direction: column; gap: 14px; }
-.bw-top-row { display: flex; align-items: center; justify-content: space-between; }
+.bw-top-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.bw-top-label { margin-bottom: 0; white-space: nowrap; }
 .bw-value { display: flex; align-items: baseline; gap: 5px; flex: 0 0 auto; }
 .bw-unit {
   font-family: var(--font-display);

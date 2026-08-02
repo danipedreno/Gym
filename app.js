@@ -1677,44 +1677,45 @@ function initTimerTab() {
 }
 
 // ===== "Rondas": contador de series completas durante un WOD =====
+// Progresivo, no independiente: tocar el 5 rellena también 1-4 (llevas 5
+// rondas hechas). Tocar el número que ya está en la punta de lo rellenado
+// lo destoca uno hacia atrás (deshacer la última ronda marcada).
 const ROUND_ROWS = [[1, 2, 3], [4, 5, 6, 7], [8, 9, 10]];
-const completedRounds = new Set();
+let roundsFilled = 0;
 
-function renderRoundsGrid() {
+function renderRoundsGrid(prevFilled = roundsFilled) {
   const grid = document.getElementById('rounds-grid');
+  const lo = Math.min(prevFilled, roundsFilled) + 1;
+  const hi = Math.max(prevFilled, roundsFilled);
+
   grid.innerHTML = ROUND_ROWS.map((row) => `
     <div class="rounds-row">
-      ${row.map((n) => `
-        <button type="button" class="round-dot c${(n - 1) % 6}${completedRounds.has(n) ? ' filled' : ''}" data-round="${n}">${n}</button>
-      `).join('')}
+      ${row.map((n) => {
+        const filled = n <= roundsFilled;
+        const changed = n >= lo && n <= hi;
+        const delay = changed ? `${(n - lo) * 40}ms` : '0ms';
+        return `<button type="button" class="round-dot c${(n - 1) % 6}${filled ? ' filled' : ''}${changed ? ' pop' : ''}" style="animation-delay:${delay}" data-round="${n}">${n}</button>`;
+      }).join('')}
     </div>
   `).join('');
 
   grid.querySelectorAll('.round-dot').forEach((btn) => {
     btn.addEventListener('click', () => {
       const n = Number(btn.dataset.round);
-      if (completedRounds.has(n)) {
-        completedRounds.delete(n);
-        btn.classList.remove('filled');
-      } else {
-        completedRounds.add(n);
-        btn.classList.add('filled');
-      }
-      // Quitar+reflow+añadir para que la animación se repita aunque se
-      // rellene/vacíe varias veces seguidas.
-      btn.classList.remove('pop');
-      void btn.offsetWidth;
-      btn.classList.add('pop');
+      const prev = roundsFilled;
+      roundsFilled = n === roundsFilled ? n - 1 : n;
+      renderRoundsGrid(prev);
     });
   });
 }
 
 function initRoundsTracker() {
   document.getElementById('rounds-reset-btn').addEventListener('click', () => {
-    completedRounds.clear();
-    renderRoundsGrid();
+    const prev = roundsFilled;
+    roundsFilled = 0;
+    renderRoundsGrid(prev);
   });
-  renderRoundsGrid();
+  renderRoundsGrid(0);
 }
 
 // ===== Navegación entre pestañas =====

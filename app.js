@@ -377,6 +377,15 @@ function currentExercise() {
 // solo se autorrellena con el valor guardado mientras el campo siga "limpio".
 let rmInputDirty = false;
 
+// El input tiene texto alineado a la derecha para que "KG" quede pegado al
+// número; sin un ancho ajustado al contenido, el hueco reservado para dígitos
+// que no están ahí desplaza visualmente el bloque entero fuera del centro.
+function autosizeRmInput() {
+  const rmInput = document.getElementById('rm-input');
+  const len = (rmInput.value || rmInput.placeholder || '0').length;
+  rmInput.style.width = `${len + 0.4}ch`;
+}
+
 function resetRmEntry() {
   selectedExercise = null;
   rmInputDirty = false;
@@ -385,6 +394,7 @@ function resetRmEntry() {
   document.getElementById('exercise-search').value = '';
   document.getElementById('rm-updated-hint').textContent = '';
   document.getElementById('rm-error-hint').classList.add('hidden');
+  autosizeRmInput();
 }
 
 function refreshRmField() {
@@ -402,6 +412,7 @@ function refreshRmField() {
     if (!rmInputDirty) rmInput.value = '';
     hint.textContent = 'Aún no has guardado un RM para este ejercicio.';
   }
+  autosizeRmInput();
 }
 
 // Confirmación de guardado: solo un check animado a pantalla completa, sin
@@ -477,6 +488,7 @@ function initRegistrarTab() {
   document.getElementById('rm-input').addEventListener('input', () => {
     rmInputDirty = true;
     document.getElementById('rm-error-hint').classList.add('hidden');
+    autosizeRmInput();
   });
 
   document.getElementById('save-rm-btn').addEventListener('click', () => {
@@ -504,6 +516,7 @@ function initRegistrarTab() {
     // refreshRmField lo recupere de lo guardado): así nunca se puede borrar
     // justo al guardar, pase lo que pase con el resto del estado.
     rmInput.value = value;
+    autosizeRmInput();
     refreshRmField();
     showSaveSuccess();
   });

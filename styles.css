@@ -258,7 +258,7 @@ input[type="number"].rm-big-input {
   color: var(--ink);
   padding: 8px 0 18px;
   margin-bottom: 4px;
-  width: 5.5ch;
+  width: 2ch;
 }
 .rm-big-input::placeholder { color: rgba(20, 18, 15, 0.14); }
 .rm-big-input:focus { border: none; background: transparent; }

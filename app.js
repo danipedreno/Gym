@@ -804,29 +804,41 @@ function renderRoundsPills(rounds) {
 // geométricas con trazo fino en "currentColor" (heredan el color del
 // bloque), pensadas para leerse como textura, no como icono — de ahí la
 // opacidad baja en cada forma.
+// Collage de formas planas y sólidas (no trazo fino de fondo): cápsulas,
+// círculos y bloques con borde negro, cada una de un color distinto de la
+// paleta — como un mini bento propio, no una textura. Coordenadas escritas
+// directamente en el lado derecho del viewBox de 300 (el texto va arriba a
+// la izquierda, así que el collage no le compite por espacio).
+// Cada <rect>/<circle>/<polygon> anima por separado (--d = retraso, --rot =
+// rotación final), así entran una a una, no todo el grupo de golpe.
+// viewBox 300×600 (no 300×300): el hueco real de cada tarjeta es alto y
+// estrecho, no cuadrado — con un viewBox cuadrado el SVG solo ocupaba una
+// caja centrada más pequeña y las formas no caían donde parecía en el
+// código. Todas las formas se agrupan en el tercio inferior (y: 380-580)
+// para no pelearse con el texto, que empieza arriba.
 const WOD_ILLUSTRATIONS = {
-  // Calentamiento: círculos concéntricos, ritmo que va creciendo.
+  // Calentamiento: cápsula + círculo + bloque, tonos cálidos sobre el teal.
   warmup: `
-    <svg class="wod-block-illus" viewBox="0 0 300 300" aria-hidden="true">
-      <circle cx="70" cy="230" r="130" fill="none" stroke="currentColor" stroke-width="2" opacity="0.16"/>
-      <circle cx="70" cy="230" r="85" fill="none" stroke="currentColor" stroke-width="2" opacity="0.24"/>
-      <circle cx="70" cy="230" r="40" fill="currentColor" opacity="0.14"/>
+    <svg class="wod-block-illus" viewBox="0 0 300 600" aria-hidden="true">
+      <rect class="wod-illus-shape" style="--d:0s; --rot:-8deg" x="145" y="470" width="150" height="64" rx="32" fill="var(--yellow)" stroke="var(--ink)" stroke-width="3"/>
+      <circle class="wod-illus-shape" style="--d:.12s; --rot:0deg" cx="210" cy="400" r="50" fill="var(--pink)" stroke="var(--ink)" stroke-width="3"/>
+      <rect class="wod-illus-shape" style="--d:.24s; --rot:12deg" x="130" y="330" width="54" height="54" fill="var(--paper)" stroke="var(--ink)" stroke-width="3"/>
     </svg>
   `,
-  // Fuerza: bloques apilados, masa sólida.
+  // Fuerza: bloque grande + círculo + cápsula, masa sólida sobre el amarillo.
   strength: `
-    <svg class="wod-block-illus" viewBox="0 0 300 300" aria-hidden="true">
-      <rect x="-30" y="40" width="110" height="110" fill="currentColor" opacity="0.14" transform="rotate(14 25 95)"/>
-      <rect x="10" y="150" width="140" height="140" fill="none" stroke="currentColor" stroke-width="2" opacity="0.22" transform="rotate(-9 80 220)"/>
-      <rect x="-10" y="210" width="70" height="70" fill="currentColor" opacity="0.18"/>
+    <svg class="wod-block-illus" viewBox="0 0 300 600" aria-hidden="true">
+      <rect class="wod-illus-shape" style="--d:0s; --rot:-6deg" x="160" y="450" width="120" height="120" fill="var(--navy)" stroke="var(--ink)" stroke-width="3"/>
+      <circle class="wod-illus-shape" style="--d:.12s; --rot:0deg" cx="240" cy="380" r="42" fill="var(--olive)" stroke="var(--ink)" stroke-width="3"/>
+      <rect class="wod-illus-shape" style="--d:.24s; --rot:8deg" x="140" y="320" width="130" height="46" rx="23" fill="var(--pink)" stroke="var(--ink)" stroke-width="3"/>
     </svg>
   `,
-  // WOD/AMRAP: triángulos angulosos, energía y movimiento.
+  // WOD/AMRAP: flecha + círculo + cápsula, la más dinámica, sobre el navy.
   wod: `
-    <svg class="wod-block-illus" viewBox="0 0 300 300" aria-hidden="true">
-      <polygon points="40,60 110,60 20,220" fill="none" stroke="currentColor" stroke-width="2" opacity="0.2"/>
-      <polygon points="90,150 180,320 0,320" fill="currentColor" opacity="0.13"/>
-      <polygon points="-20,230 60,230 10,320" fill="none" stroke="currentColor" stroke-width="2" opacity="0.26"/>
+    <svg class="wod-block-illus" viewBox="0 0 300 600" aria-hidden="true">
+      <polygon class="wod-illus-shape" style="--d:0s; --rot:0deg" points="230,340 300,340 230,480" fill="var(--pink)" stroke="var(--ink)" stroke-width="3"/>
+      <circle class="wod-illus-shape" style="--d:.12s; --rot:0deg" cx="235" cy="500" r="46" fill="var(--sage)" stroke="var(--ink)" stroke-width="3"/>
+      <rect class="wod-illus-shape" style="--d:.24s; --rot:-10deg" x="160" y="420" width="92" height="42" rx="21" fill="var(--paper)" stroke="var(--ink)" stroke-width="3"/>
     </svg>
   `,
 };
@@ -1887,6 +1899,10 @@ function initRoundsTracker() {
 function initNav() {
   document.querySelectorAll('.nav-btn').forEach((btn) => {
     btn.addEventListener('click', () => {
+      // La página del WOD Destacado es un overlay a pantalla completa: si se
+      // navega a otra pestaña por debajo hay que cerrarla, si no se queda
+      // tapando la pestaña nueva y parece que no ha pasado nada.
+      closeFeaturedWodPage();
       document.querySelectorAll('.nav-btn').forEach((b) => b.classList.remove('active'));
       document.querySelectorAll('.tab').forEach((t) => t.classList.remove('active'));
       btn.classList.add('active');

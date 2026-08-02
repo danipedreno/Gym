@@ -482,9 +482,9 @@ input[type="date"].modal-date-input::-webkit-calendar-picker-indicator { cursor:
   background: var(--ink);
   border: 2px solid var(--ink);
 }
-/* Pareja de .glass-panel.attached-bottom: sin borde propio arriba, para
-   compartir una sola línea con la caja de encima en vez de dos pegadas. */
-.pct-grid.attached-top { border-top: none; }
+/* Pareja de .glass-panel.attached-bottom: mantiene su borde superior (2px)
+   de serie — es la única línea que separa la gráfica de estas tiles, ya
+   que la caja de arriba no lleva borde inferior propio. */
 #rms-progress-stats,
 #bodyweight-stats,
 #composition-grid {
@@ -936,7 +936,7 @@ input[type="date"].modal-date-input::-webkit-calendar-picker-indicator { cursor:
   scrollbar-width: none;
 }
 .featured-wod-swipe::-webkit-scrollbar { display: none; }
-/* El contenido va arriba a la derecha (no centrado): deja libre la esquina
+/* El contenido va arriba a la izquierda (no centrado): deja libre la esquina
    opuesta para que se vea la ilustración de fondo sin pelearse con el texto. */
 .wod-block {
   position: relative;
@@ -945,7 +945,7 @@ input[type="date"].modal-date-input::-webkit-calendar-picker-indicator { cursor:
   scroll-snap-align: start;
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
+  align-items: flex-start;
   justify-content: flex-start;
   padding: 8px 24px;
   padding-bottom: calc(90px + env(safe-area-inset-bottom));
@@ -956,23 +956,34 @@ input[type="date"].modal-date-input::-webkit-calendar-picker-indicator { cursor:
   z-index: 1;
   max-width: 82%;
 }
-/* Figura geométrica de fondo por bloque: por debajo del contenido, se anima
-   al entrar en vista (abrir la página o deslizar hasta ella = "cargar"). */
+/* Collage de formas por bloque: por debajo del contenido. Cada forma entra
+   por separado (ver .wod-illus-shape) — la animación de "cargar el bloque"
+   es del conjunto entrando en cascada, no un único fundido de golpe. */
 .wod-block-illus {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  color: inherit;
   pointer-events: none;
   z-index: 0;
-  opacity: 0;
-  transform: scale(0.88) rotate(-3deg);
 }
-.wod-block-illus.in-view { animation: wod-illus-in 1s var(--ease) forwards; }
-@keyframes wod-illus-in {
-  from { opacity: 0; transform: scale(0.88) rotate(-3deg); }
-  to { opacity: 1; transform: scale(1) rotate(0deg); }
+.wod-illus-shape {
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  transform: scale(0.35) translateY(30px) rotate(0deg);
+}
+/* Solo animan cuando el bloque entra en vista (JS añade/quita .in-view al
+   abrir la página o al deslizar a un bloque nuevo = "cargar"). --d y --rot
+   los fija cada forma en línea, así entran en cascada y cada una acaba en
+   su ángulo final, no todas a la vez ni todas a 0°. */
+.wod-block-illus.in-view .wod-illus-shape {
+  animation: wod-illus-shape-in .65s var(--ease) forwards;
+  animation-delay: var(--d, 0s);
+}
+@keyframes wod-illus-shape-in {
+  from { opacity: 0; transform: scale(0.35) translateY(30px) rotate(0deg); }
+  to { opacity: 1; transform: scale(1) translateY(0) rotate(var(--rot, 0deg)); }
 }
 
 /* Jerarquía dentro de cada bloque: icono+título(+cifra clave en la misma

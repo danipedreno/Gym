@@ -729,6 +729,7 @@ const FEATURED_WOD = {
     {
       color: 'c0',
       icon: 'timer',
+      illus: 'warmup',
       title: 'Calentamiento',
       badge: "EMOM 6'",
       items: [
@@ -739,6 +740,7 @@ const FEATURED_WOD = {
     {
       color: 'c1',
       icon: 'dumbbell',
+      illus: 'strength',
       title: 'Fuerza y Estabilidad Progresiva',
       items: [
         { main: '12 pesos muertos con KB' },
@@ -756,6 +758,7 @@ const FEATURED_WOD = {
     {
       color: 'c2',
       icon: 'flame',
+      illus: 'wod',
       title: 'El Work Out del Día',
       badge: "AMRAP 15'",
       items: [
@@ -797,6 +800,37 @@ function renderRoundsPills(rounds) {
   `;
 }
 
+// Ilustraciones abstractas de fondo, una por tipo de bloque: figuras
+// geométricas con trazo fino en "currentColor" (heredan el color del
+// bloque), pensadas para leerse como textura, no como icono — de ahí la
+// opacidad baja en cada forma.
+const WOD_ILLUSTRATIONS = {
+  // Calentamiento: círculos concéntricos, ritmo que va creciendo.
+  warmup: `
+    <svg class="wod-block-illus" viewBox="0 0 300 300" aria-hidden="true">
+      <circle cx="70" cy="230" r="130" fill="none" stroke="currentColor" stroke-width="2" opacity="0.16"/>
+      <circle cx="70" cy="230" r="85" fill="none" stroke="currentColor" stroke-width="2" opacity="0.24"/>
+      <circle cx="70" cy="230" r="40" fill="currentColor" opacity="0.14"/>
+    </svg>
+  `,
+  // Fuerza: bloques apilados, masa sólida.
+  strength: `
+    <svg class="wod-block-illus" viewBox="0 0 300 300" aria-hidden="true">
+      <rect x="-30" y="40" width="110" height="110" fill="currentColor" opacity="0.14" transform="rotate(14 25 95)"/>
+      <rect x="10" y="150" width="140" height="140" fill="none" stroke="currentColor" stroke-width="2" opacity="0.22" transform="rotate(-9 80 220)"/>
+      <rect x="-10" y="210" width="70" height="70" fill="currentColor" opacity="0.18"/>
+    </svg>
+  `,
+  // WOD/AMRAP: triángulos angulosos, energía y movimiento.
+  wod: `
+    <svg class="wod-block-illus" viewBox="0 0 300 300" aria-hidden="true">
+      <polygon points="40,60 110,60 20,220" fill="none" stroke="currentColor" stroke-width="2" opacity="0.2"/>
+      <polygon points="90,150 180,320 0,320" fill="currentColor" opacity="0.13"/>
+      <polygon points="-20,230 60,230 10,320" fill="none" stroke="currentColor" stroke-width="2" opacity="0.26"/>
+    </svg>
+  `,
+};
+
 // Página a pantalla completa, no desplegable: 3 tarjetas (una por bloque) en
 // una fila con scroll horizontal + snap, para deslizar de una a otra como en
 // un carrusel de stories. Los puntos de arriba marcan en cuál se está.
@@ -804,13 +838,16 @@ function renderFeaturedWod() {
   const swipe = document.getElementById('featured-wod-swipe');
   swipe.innerHTML = FEATURED_WOD.blocks.map((block) => `
     <div class="wod-block ${block.color}">
-      <div class="wod-block-head">
-        <svg class="icon"><use href="#icon-${block.icon}"/></svg>
-        <span class="wod-block-title">${block.title}${block.badge ? ` <span class="wod-block-badge-inline">${block.badge}</span>` : ''}</span>
+      ${WOD_ILLUSTRATIONS[block.illus] || ''}
+      <div class="wod-block-content">
+        <div class="wod-block-head">
+          <svg class="icon"><use href="#icon-${block.icon}"/></svg>
+          <span class="wod-block-title">${block.title}${block.badge ? ` <span class="wod-block-badge-inline">${block.badge}</span>` : ''}</span>
+        </div>
+        ${block.rounds ? renderRoundsPills(block.rounds) : ''}
+        <ul class="wod-block-list">${block.items.map(renderWodItem).join('')}</ul>
+        ${block.note ? `<p class="wod-block-note">${block.note}</p>` : ''}
       </div>
-      ${block.rounds ? renderRoundsPills(block.rounds) : ''}
-      <ul class="wod-block-list">${block.items.map(renderWodItem).join('')}</ul>
-      ${block.note ? `<p class="wod-block-note">${block.note}</p>` : ''}
     </div>
   `).join('');
 
@@ -818,18 +855,31 @@ function renderFeaturedWod() {
   dots.innerHTML = FEATURED_WOD.blocks.map((_, i) => `<span class="featured-wod-dot${i === 0 ? ' active' : ''}"></span>`).join('');
 }
 
-function updateFeaturedWodDots() {
+// Solo se recuerda cuál era el índice anterior para no relanzar la animación
+// de la ilustración en cada tick de scroll, solo cuando el bloque activo
+// cambia de verdad (al deslizar a uno nuevo, "carga" y se anima).
+let featuredWodActiveIndex = -1;
+function updateFeaturedWodActive() {
   const swipe = document.getElementById('featured-wod-swipe');
   if (!swipe.clientWidth) return;
   const index = Math.round(swipe.scrollLeft / swipe.clientWidth);
   document.querySelectorAll('.featured-wod-dot').forEach((d, i) => d.classList.toggle('active', i === index));
+  if (index === featuredWodActiveIndex) return;
+  featuredWodActiveIndex = index;
+  const block = swipe.querySelectorAll('.wod-block')[index];
+  const illus = block && block.querySelector('.wod-block-illus');
+  if (!illus) return;
+  illus.classList.remove('in-view');
+  void illus.getBoundingClientRect();
+  illus.classList.add('in-view');
 }
 
 function openFeaturedWodPage() {
   const swipe = document.getElementById('featured-wod-swipe');
   document.getElementById('featured-wod-page').classList.remove('hidden');
   swipe.scrollLeft = 0;
-  updateFeaturedWodDots();
+  featuredWodActiveIndex = -1;
+  updateFeaturedWodActive();
 }
 function closeFeaturedWodPage() {
   document.getElementById('featured-wod-page').classList.add('hidden');
@@ -1041,7 +1091,7 @@ function initWodsTab() {
   let dotsDebounce = null;
   document.getElementById('featured-wod-swipe').addEventListener('scroll', () => {
     clearTimeout(dotsDebounce);
-    dotsDebounce = setTimeout(updateFeaturedWodDots, 50);
+    dotsDebounce = setTimeout(updateFeaturedWodActive, 50);
   }, { passive: true });
   renderFeaturedWod();
 }

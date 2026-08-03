@@ -911,10 +911,13 @@ input[type="date"].modal-date-input::-webkit-calendar-picker-indicator { cursor:
   background: var(--paper);
   display: flex;
   flex-direction: column;
-  animation: fw-page-in .25s var(--ease);
+  animation: fw-page-in .32s cubic-bezier(.4,0,.2,1) both;
 }
 .featured-wod-page.hidden { display: none; }
-@keyframes fw-page-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fw-page-in {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
 .featured-wod-page-top {
   flex-shrink: 0;
   display: flex;

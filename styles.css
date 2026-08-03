@@ -975,16 +975,7 @@ input[type="date"].modal-date-input::-webkit-calendar-picker-indicator { cursor:
   height: auto;
   pointer-events: none;
   z-index: 0;
-  opacity: 0;
-  transform: scale(0.65) rotate(-10deg);
-  transform-origin: bottom right;
-}
-.wod-block-illus.in-view {
-  animation: wod-illus-in .85s cubic-bezier(.34,1.48,.64,1) forwards;
-}
-@keyframes wod-illus-in {
-  from { opacity: 0; transform: scale(0.65) rotate(-10deg); }
-  to   { opacity: 1; transform: scale(1)    rotate(0deg);   }
+  opacity: 1;
 }
 
 /* Jerarquía dentro de cada bloque: icono+título(+cifra clave en la misma

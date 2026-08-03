@@ -525,9 +525,9 @@ input[type="date"].modal-date-input::-webkit-calendar-picker-indicator { cursor:
   from { opacity: 0.15; transform: perspective(480px) rotateX(-80deg); }
   to   { opacity: 1;    transform: perspective(480px) rotateX(0deg); }
 }
+@keyframes tile-in { to { opacity: 1; transform: translateY(0) scale(1); } }
 @media (prefers-reduced-motion: reduce) {
   .pct-tile { animation: tile-in .2s linear forwards; }
-  @keyframes tile-in { to { opacity: 1; transform: none; } }
 }
 .pct-tile-label {
   display: flex;

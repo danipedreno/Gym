@@ -500,9 +500,16 @@ input[type="date"].modal-date-input::-webkit-calendar-picker-indicator { cursor:
   border-radius: 0;
   padding: 14px;
   opacity: 0;
-  transform: translateY(8px) scale(0.98);
-  animation: tile-in .35s var(--ease) forwards;
+  transform: perspective(480px) rotateX(-80deg);
+  transform-origin: top center;
+  animation: cube-face-in .42s cubic-bezier(.2,.9,.4,1) forwards;
 }
+/* Stagger: cada cara de cubo cae un poco después que la anterior */
+.pct-tile:nth-child(2) { animation-delay: .07s; }
+.pct-tile:nth-child(3) { animation-delay: .14s; }
+.pct-tile:nth-child(4) { animation-delay: .21s; }
+.pct-tile:nth-child(5) { animation-delay: .28s; }
+.pct-tile:nth-child(6) { animation-delay: .35s; }
 /* Naranja queda fuera del ciclo: es el color del CTA (Guardar, RM, activo),
    no se reutiliza como uno más de los bloques de estadística. */
 .pct-tile:nth-child(6n+2) { background: var(--yellow); color: var(--ink); }
@@ -510,16 +517,18 @@ input[type="date"].modal-date-input::-webkit-calendar-picker-indicator { cursor:
 .pct-tile:nth-child(6n+4) { background: var(--pink); color: var(--ink); }
 .pct-tile:nth-child(6n+5) { background: var(--olive); color: var(--white); }
 .pct-tile:nth-child(6n+0) { background: var(--sage); color: var(--ink); }
-/* El hero (ej. IMC) siempre queda neutro: es la cifra principal, no una más
-   del ciclo de color (mismo patrón que "DAYS ACTIVE" en la referencia). */
 .pct-tile.hero { background: var(--paper); color: var(--ink); }
-/* Color explícito (no el ciclo por posición): las tres tiles de "Apuntar
-   peso" comparten pantalla con las de "Tu composición" (neutro/amarillo/
-   navy), así que llevan otro trío para no repetir color en la misma vista. */
 .pct-tile.c-teal { background: var(--teal); color: var(--white); }
 .pct-tile.c-pink { background: var(--pink); color: var(--ink); }
 .pct-tile.c-olive { background: var(--olive); color: var(--white); }
-@keyframes tile-in { to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes cube-face-in {
+  from { opacity: 0.15; transform: perspective(480px) rotateX(-80deg); }
+  to   { opacity: 1;    transform: perspective(480px) rotateX(0deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pct-tile { animation: tile-in .2s linear forwards; }
+  @keyframes tile-in { to { opacity: 1; transform: none; } }
+}
 .pct-tile-label {
   display: flex;
   align-items: center;

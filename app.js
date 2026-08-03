@@ -903,12 +903,14 @@ function updateFeaturedWodActive() {
 function openFeaturedWodPage() {
   const swipe = document.getElementById('featured-wod-swipe');
   document.getElementById('featured-wod-page').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
   swipe.scrollLeft = 0;
   featuredWodActiveIndex = -1;
   updateFeaturedWodActive();
 }
 function closeFeaturedWodPage() {
   document.getElementById('featured-wod-page').classList.add('hidden');
+  document.body.style.overflow = '';
 }
 
 // ===== Tab: WOD Heroes =====

@@ -940,9 +940,11 @@ input[type="date"].modal-date-input::-webkit-calendar-picker-indicator { cursor:
   flex: 1;
   display: flex;
   overflow-x: auto;
+  overflow-y: hidden;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
+  overscroll-behavior: none;
 }
 .featured-wod-swipe::-webkit-scrollbar { display: none; }
 /* El contenido va arriba a la izquierda (no centrado): deja libre la esquina
@@ -969,7 +971,7 @@ input[type="date"].modal-date-input::-webkit-calendar-picker-indicator { cursor:
    y girada; con .in-view (JS al swipe) hace spring/overshoot desde ese rincón. */
 .wod-block-illus {
   position: absolute;
-  bottom: 0;
+  bottom: calc(64px + env(safe-area-inset-bottom));
   right: -16px;
   width: min(300px, 86%);
   height: auto;

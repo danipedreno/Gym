@@ -1605,6 +1605,18 @@ let timerRunning = false;
 let timerRafId = null;
 let timerLastTick = null;
 let audioCtx = null;
+let wakeLock = null;
+
+async function requestWakeLock() {
+  if (!('wakeLock' in navigator)) return;
+  try { wakeLock = await navigator.wakeLock.request('screen'); } catch (_) {}
+}
+function releaseWakeLock() {
+  if (wakeLock) { wakeLock.release(); wakeLock = null; }
+}
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && timerRunning) requestWakeLock();
+});
 
 // Devuelve mm:ss y, por separado, las centésimas (2 dígitos) para mostrarlas
 // más pequeñas al lado, como en un crono real en vez de redondear al segundo.
@@ -1733,6 +1745,7 @@ function startTimer() {
   document.getElementById('timer-display').classList.add('running');
   document.getElementById('timer-toggle-btn').textContent = 'Pausar';
   updateSetupVisibility();
+  requestWakeLock();
 }
 
 function stopTimer() {
@@ -1741,6 +1754,7 @@ function stopTimer() {
   document.getElementById('timer-display').classList.remove('running');
   document.getElementById('timer-toggle-btn').textContent = 'Empezar';
   updateSetupVisibility();
+  releaseWakeLock();
 }
 
 function resetTimer() {

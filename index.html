@@ -108,6 +108,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
         <path d="M127.982 129.902L103.479 149.232L103.455 49.751L89.333 60.9004L69.0352 45.6055L127.642 0L127.982 129.902Z" fill="currentColor"/>
       </svg>
     </h1>
+    <button type="button" class="icon-btn" id="peso-btn" aria-label="Peso"><svg class="icon"><use href="#icon-scale"/></svg></button>
     <button type="button" class="icon-btn" id="profile-btn" aria-label="Perfil"><svg class="icon"><use href="#icon-user"/></svg></button>
   </div>
 </header>
@@ -207,39 +208,32 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
   </section>
 
   <!-- ===== TAB: PESO ===== -->
+  <!-- ===== TAB: LOADER ===== -->
   <section id="tab-progreso" class="tab">
-
     <div class="plain-section">
-      <label class="field-label">Tu perfil</label>
-      <p class="hint" id="profile-summary"></p>
-    </div>
-
-    <div class="plain-section">
-      <div class="bw-row">
-        <div class="bw-top-row">
-          <label class="field-label bw-top-label">Apuntar peso</label>
-          <input type="date" id="bodyweight-date" class="bw-date-input" aria-label="Fecha">
-          <button type="button" class="bw-save-link" id="save-bodyweight-btn">Guardar</button>
-        </div>
-        <div class="bw-value">
-          <input type="number" id="bodyweight-input" class="bw-input" inputmode="decimal" step="0.1" min="0" placeholder="0">
-          <span class="bw-unit">Kg</span>
-        </div>
+      <label class="field-label">Plate Loader</label>
+      <p class="hint">Introduce el peso objetivo y te digo cómo cargar la barra.</p>
+      <div class="loader-input-wrap">
+        <input type="number" id="loader-weight-input" inputmode="decimal" step="1" min="20" placeholder="100" class="loader-input">
+        <span class="loader-unit">kg</span>
       </div>
-      <p class="hint error hidden" id="bodyweight-error-hint"></p>
+      <div class="loader-pct-row" id="loader-pct-row">
+        <button class="loader-pct-btn active" data-pct="100">100%</button>
+        <button class="loader-pct-btn" data-pct="90">90%</button>
+        <button class="loader-pct-btn" data-pct="80">80%</button>
+        <button class="loader-pct-btn" data-pct="70">70%</button>
+        <button class="loader-pct-btn" data-pct="60">60%</button>
+        <button class="loader-pct-btn" data-pct="50">50%</button>
+        <button class="loader-pct-btn" data-pct="40">40%</button>
+      </div>
     </div>
-
-    <div class="plain-section">
-      <label class="field-label">Tu composición</label>
-      <div class="pct-grid" id="composition-grid"></div>
-      <p class="hint hidden" id="composition-hint"></p>
-    </div>
-
-    <div class="plain-section">
-      <label class="field-label">Evolución del peso</label>
-      <div class="glass-panel attached-bottom" id="bodyweight-chart-wrap"></div>
-      <p class="empty hidden" id="bodyweight-empty">Todavía no has guardado tu peso. Apunta el de hoy arriba.</p>
-      <div class="pct-grid" id="bodyweight-stats"></div>
+    <div id="loader-result" class="loader-result hidden">
+      <div class="plain-section loader-result-header">
+        <span class="loader-result-kg" id="loader-result-kg"></span>
+        <span class="loader-result-sub" id="loader-result-sub"></span>
+      </div>
+      <div class="loader-barbell-wrap" id="loader-barbell-wrap"></div>
+      <div class="plain-section loader-plate-summary" id="loader-plate-summary"></div>
     </div>
   </section>
 
@@ -293,7 +287,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
     <span class="nav-icon-wrap"><svg class="icon nav-icon"><use href="#icon-target"/></svg></span><span>Mis RMs</span>
   </button>
   <button class="nav-btn" data-tab="tab-progreso">
-    <span class="nav-icon-wrap"><svg class="icon nav-icon"><use href="#icon-scale"/></svg></span><span>Peso</span>
+    <span class="nav-icon-wrap"><svg class="icon nav-icon"><use href="#icon-barbell"/></svg></span><span>Loader</span>
   </button>
   <button class="nav-btn" data-tab="tab-timer">
     <span class="nav-icon-wrap"><svg class="icon nav-icon"><use href="#icon-timer"/></svg></span><span>Timer</span>
@@ -310,6 +304,47 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
     <div class="featured-wod-dots" id="featured-wod-dots"></div>
   </div>
   <div class="featured-wod-swipe" id="featured-wod-swipe"></div>
+</div>
+
+<!-- Panel deslizante de Peso & Composición, accesible desde el icono de báscula en la cabecera -->
+<div class="peso-page hidden" id="peso-page">
+  <div class="peso-page-top">
+    <button type="button" class="icon-btn" id="peso-back-btn" aria-label="Volver">
+      <svg class="icon"><use href="#icon-arrow-left"/></svg>
+    </button>
+    <span class="peso-page-title">Peso &amp; Composición</span>
+  </div>
+  <div class="peso-page-body">
+    <div class="plain-section">
+      <label class="field-label">Tu perfil</label>
+      <p class="hint" id="profile-summary"></p>
+    </div>
+    <div class="plain-section">
+      <div class="bw-row">
+        <div class="bw-top-row">
+          <label class="field-label bw-top-label">Apuntar peso</label>
+          <input type="date" id="bodyweight-date" class="bw-date-input" aria-label="Fecha">
+          <button type="button" class="bw-save-link" id="save-bodyweight-btn">Guardar</button>
+        </div>
+        <div class="bw-value">
+          <input type="number" id="bodyweight-input" class="bw-input" inputmode="decimal" step="0.1" min="0" placeholder="0">
+          <span class="bw-unit">Kg</span>
+        </div>
+      </div>
+      <p class="hint error hidden" id="bodyweight-error-hint"></p>
+    </div>
+    <div class="plain-section">
+      <label class="field-label">Tu composición</label>
+      <div class="pct-grid" id="composition-grid"></div>
+      <p class="hint hidden" id="composition-hint"></p>
+    </div>
+    <div class="plain-section">
+      <label class="field-label">Evolución del peso</label>
+      <div class="glass-panel attached-bottom" id="bodyweight-chart-wrap"></div>
+      <p class="empty hidden" id="bodyweight-empty">Todavía no has guardado tu peso. Apunta el de hoy arriba.</p>
+      <div class="pct-grid" id="bodyweight-stats"></div>
+    </div>
+  </div>
 </div>
 
 <!-- Popup para editar el RM desde Mis RMs -->

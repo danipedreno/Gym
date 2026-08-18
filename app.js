@@ -1596,6 +1596,119 @@ function initPesoTab() {
   renderCompositionGrid();
 }
 
+// ===== Panel: Peso & Composición =====
+function initPesoPage() {
+  document.getElementById('peso-btn').addEventListener('click', () => {
+    document.getElementById('peso-page').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    refreshProfileSummary();
+    renderBodyWeightChart();
+    renderCompositionGrid();
+  });
+  const close = () => {
+    document.getElementById('peso-page').classList.add('hidden');
+    document.body.style.overflow = '';
+  };
+  document.getElementById('peso-back-btn').addEventListener('click', close);
+}
+
+// ===== Tab: Loader (calculadora de discos) =====
+const LOADER_BAR = 20;
+const LOADER_PLATES = [25, 20, 15, 10, 5];
+const PLATE_FILL = { 25: '#CC2020', 20: '#1A5FA0', 15: '#D4960A', 10: '#1E8A50', 5: '#888' };
+const PLATE_INK  = { 25: '#fff',    20: '#fff',    15: '#111',    10: '#fff',    5: '#fff' };
+
+function calcPlatesPerSide(kg) {
+  const plateTotal = kg - LOADER_BAR;
+  if (plateTotal < 0) return null;
+  if (plateTotal % 10 !== 0) return null;
+  let rem = plateTotal / 2;
+  const out = [];
+  for (const p of LOADER_PLATES) { while (rem >= p) { out.push(p); rem -= p; } }
+  return rem === 0 ? out : null;
+}
+
+function roundToLoadable(kg) {
+  if (kg <= LOADER_BAR) return LOADER_BAR;
+  return LOADER_BAR + Math.max(0, Math.round((kg - LOADER_BAR) / 10) * 10);
+}
+
+function buildBarbellSVG(plates) {
+  const H = 150, barY = H / 2, barH = 10;
+  const CW = 14, CH = 54, GAP = 3, CP = 32, TAIL = 22;
+  const sp = {
+    25: { h: 100, w: 18 }, 20: { h: 88, w: 16 },
+    15: { h:  76, w: 14 }, 10: { h: 62, w: 12 }, 5: { h: 46, w: 9 },
+  };
+  const oneSide = plates.reduce((s, p) => s + sp[p].w + GAP, 0);
+  const halfW = CP + GAP + oneSide + CW + TAIL;
+  const W = halfW * 2, cx = halfW;
+  const el = [];
+
+  el.push(`<rect x="${TAIL}" y="${barY - barH/2}" width="${W-TAIL*2}" height="${barH}" fill="#c8c8c8" rx="${barH/2}"/>`);
+  el.push(`<rect x="${cx-CP}" y="${barY-barH/2-3}" width="${CP*2}" height="${barH+6}" fill="#999" rx="3"/>`);
+
+  const plate = (x, s) => {
+    const py = barY - sp[s].h / 2;
+    el.push(`<rect x="${x}" y="${py}" width="${sp[s].w}" height="${sp[s].h}" fill="${PLATE_FILL[s]}" rx="3"/>`);
+    el.push(`<rect x="${x}" y="${py}" width="3" height="${sp[s].h}" fill="#ffffff28" rx="2"/>`);
+    const fs = sp[s].w >= 14 ? 11 : 9;
+    el.push(`<text transform="rotate(90,${x+sp[s].w/2},${barY})" x="${x+sp[s].w/2}" y="${barY}" text-anchor="middle" dominant-baseline="central" font-size="${fs}" font-weight="800" fill="${PLATE_INK[s]}" font-family="Arial,sans-serif">${s}</text>`);
+  };
+
+  let rx = cx + CP + GAP;
+  for (const p of plates) { plate(rx, p); rx += sp[p].w + GAP; }
+  el.push(`<rect x="${rx}" y="${barY-CH/2}" width="${CW}" height="${CH}" fill="#444" rx="3"/>`);
+
+  let lx = cx - CP - GAP;
+  for (const p of plates) { lx -= sp[p].w; plate(lx, p); lx -= GAP; }
+  el.push(`<rect x="${lx-CW}" y="${barY-CH/2}" width="${CW}" height="${CH}" fill="#444" rx="3"/>`);
+
+  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto">${el.join('')}</svg>`;
+}
+
+function renderLoader(baseKg, pct) {
+  const target = roundToLoadable(baseKg * pct / 100);
+  const plates = calcPlatesPerSide(target) || [];
+  document.getElementById('loader-result-kg').textContent = `${target} kg`;
+  if (plates.length === 0) {
+    document.getElementById('loader-result-sub').textContent = 'Solo la barra (20 kg)';
+    document.getElementById('loader-plate-summary').innerHTML = '';
+  } else {
+    const groups = {};
+    plates.forEach(p => { groups[p] = (groups[p] || 0) + 1; });
+    const sides = LOADER_PLATES.filter(p => groups[p])
+      .map(p => `${p}kg${groups[p] > 1 ? ' ×' + groups[p] : ''}`).join(' + ');
+    document.getElementById('loader-result-sub').textContent = `Barra 20kg  +  ${sides}  (cada lado)`;
+    document.getElementById('loader-plate-summary').innerHTML =
+      LOADER_PLATES.filter(p => groups[p]).map(p =>
+        `<span class="loader-chip" style="background:${PLATE_FILL[p]};color:${PLATE_INK[p]}">${p} kg × ${groups[p] * 2}</span>`
+      ).join('');
+  }
+  document.getElementById('loader-barbell-wrap').innerHTML = buildBarbellSVG(plates);
+}
+
+function initLoaderTab() {
+  const input = document.getElementById('loader-weight-input');
+  const pctBtns = [...document.querySelectorAll('.loader-pct-btn')];
+  let activePct = 100;
+
+  const update = () => {
+    const base = parseFloat(input.value) || 0;
+    if (base < LOADER_BAR) { document.getElementById('loader-result').classList.add('hidden'); return; }
+    document.getElementById('loader-result').classList.remove('hidden');
+    renderLoader(base, activePct);
+  };
+
+  input.addEventListener('input', update);
+  pctBtns.forEach(btn => btn.addEventListener('click', () => {
+    pctBtns.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activePct = parseInt(btn.dataset.pct);
+    update();
+  }));
+}
+
 // ===== Tab: Timer (countdown + cronómetro) =====
 let timerMode = 'countdown';
 let timerDurationSec = 30;
@@ -1939,7 +2052,6 @@ function initNav() {
       document.getElementById(btn.dataset.tab).classList.add('active');
       if (btn.dataset.tab === 'tab-rms') renderRmsSearchResults(document.getElementById('rms-search').value);
       if (btn.dataset.tab === 'tab-wods') renderWodList();
-      if (btn.dataset.tab === 'tab-progreso') { renderBodyWeightChart(); renderCompositionGrid(); }
       if (btn.dataset.tab === 'tab-timer') resyncTimerWheels();
     });
   });
@@ -1952,7 +2064,9 @@ document.addEventListener('DOMContentLoaded', () => {
   initRegistrarTab();
   initRmsTab();
   initWodsTab();
+  initPesoPage();
   initPesoTab();
+  initLoaderTab();
   initTimerTab();
 
   if ('serviceWorker' in navigator) {

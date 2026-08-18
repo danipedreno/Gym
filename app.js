@@ -532,24 +532,22 @@ function initRegistrarTab() {
 }
 
 // ===== Expandir/colapsar filas con animación de alto =====
-// height:0 -> scrollHeight -> 'auto' al abrir; scrollHeight fijo -> 0 al cerrar
-// (no se puede animar directamente desde/hacia 'auto', por eso el paso intermedio).
 function toggleItemExpand(item) {
   const detail = item.querySelector('.item-detail');
   if (!item.classList.contains('expanded')) {
     item.classList.add('expanded');
-    detail.style.height = detail.scrollHeight + 'px';
+    detail.style.maxHeight = detail.scrollHeight + 'px';
     const onEnd = (e) => {
-      if (e.propertyName !== 'height') return;
-      detail.style.height = 'auto';
+      if (e.propertyName !== 'max-height') return;
+      detail.style.maxHeight = 'none';
       detail.removeEventListener('transitionend', onEnd);
     };
     detail.addEventListener('transitionend', onEnd);
   } else {
-    detail.style.height = detail.scrollHeight + 'px';
+    detail.style.maxHeight = detail.scrollHeight + 'px';
     requestAnimationFrame(() => {
       item.classList.remove('expanded');
-      detail.style.height = '0px';
+      detail.style.maxHeight = '0px';
     });
   }
 }

@@ -613,10 +613,10 @@ input[type="date"].modal-date-input::-webkit-calendar-picker-indicator { cursor:
 .item-sub { font-size: 0.8rem; color: var(--text-dim); margin-top: 2px; }
 
 .item-detail {
-  height: 0;
+  max-height: 0;
   opacity: 0;
   overflow: hidden;
-  transition: height .22s var(--ease), opacity .18s var(--ease);
+  transition: max-height .22s var(--ease), opacity .18s var(--ease);
 }
 .item-detail-inner { padding-top: 10px; margin-top: 8px; border-top: 2px dashed var(--ink); }
 .item.expanded .item-detail { opacity: 1; }

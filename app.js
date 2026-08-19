@@ -1448,9 +1448,7 @@ function renderCompositionGrid() {
     tile('droplet', 'Agua', `${tbw.toFixed(1)} L`, 'Fórmula de Watson');
 }
 
-// El perfil se edita en un popup abierto desde el icono de la cabecera,
-// visible en cualquier pestaña (no solo en Peso).
-function openProfileModal() {
+function openProfileEditForm() {
   const profile = getProfile();
   document.getElementById('profile-name').value = profile?.name || '';
   document.getElementById('profile-age').value = profile?.age || '';
@@ -1459,10 +1457,12 @@ function openProfileModal() {
   document.querySelectorAll('#profile-build .seg-btn').forEach((b) => b.classList.toggle('active', b.dataset.build === (profile?.build || 'medium')));
   document.querySelectorAll('#profile-frequency .seg-btn').forEach((b) => b.classList.toggle('active', b.dataset.frequency === (profile?.frequency || '3-4')));
   document.getElementById('profile-error-hint').classList.add('hidden');
-  document.getElementById('profile-modal').classList.remove('hidden');
+  document.getElementById('profile-edit-form').classList.remove('hidden');
+  document.getElementById('profile-edit-toggle').textContent = 'Cerrar';
 }
-function closeProfileModal() {
-  document.getElementById('profile-modal').classList.add('hidden');
+function closeProfileEditForm() {
+  document.getElementById('profile-edit-form').classList.add('hidden');
+  document.getElementById('profile-edit-toggle').textContent = 'Editar';
 }
 
 function initProfileModal() {
@@ -1474,10 +1474,19 @@ function initProfileModal() {
     });
   });
 
-  document.getElementById('profile-btn').addEventListener('click', openProfileModal);
-  document.getElementById('profile-cancel-btn').addEventListener('click', closeProfileModal);
-  document.getElementById('profile-modal').addEventListener('click', (e) => {
-    if (e.target.id === 'profile-modal') closeProfileModal();
+  const openPesoPage = () => {
+    document.getElementById('peso-page').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    refreshProfileSummary();
+    renderBodyWeightChart();
+    renderCompositionGrid();
+  };
+  document.getElementById('profile-btn').addEventListener('click', openPesoPage);
+
+  document.getElementById('profile-edit-toggle').addEventListener('click', () => {
+    const form = document.getElementById('profile-edit-form');
+    if (form.classList.contains('hidden')) openProfileEditForm();
+    else closeProfileEditForm();
   });
 
   document.getElementById('save-profile-btn').addEventListener('click', () => {
@@ -1498,7 +1507,7 @@ function initProfileModal() {
     saveProfile({ name, age, heightCm, sex, build, frequency });
     refreshProfileSummary();
     renderCompositionGrid();
-    closeProfileModal();
+    closeProfileEditForm();
   });
 
   refreshProfileSummary();
@@ -1596,16 +1605,10 @@ function initPesoTab() {
 
 // ===== Panel: Peso & Composición =====
 function initPesoPage() {
-  document.getElementById('peso-btn').addEventListener('click', () => {
-    document.getElementById('peso-page').classList.remove('hidden');
-    document.body.style.overflow = 'hidden';
-    refreshProfileSummary();
-    renderBodyWeightChart();
-    renderCompositionGrid();
-  });
   const close = () => {
     document.getElementById('peso-page').classList.add('hidden');
     document.body.style.overflow = '';
+    closeProfileEditForm();
   };
   document.getElementById('peso-back-btn').addEventListener('click', close);
 }
@@ -1613,8 +1616,9 @@ function initPesoPage() {
 // ===== Tab: Loader (calculadora de discos) =====
 const LOADER_BAR = 20;
 const LOADER_PLATES = [25, 20, 15, 10, 5];
-const PLATE_FILL = { 25: '#CC2020', 20: '#1A5FA0', 15: '#D4960A', 10: '#1E8A50', 5: '#888' };
-const PLATE_INK  = { 25: '#fff',    20: '#fff',    15: '#111',    10: '#fff',    5: '#fff' };
+// Colores de marca: acento/naranja, navy, amarillo, teal, sage
+const PLATE_FILL = { 25: '#ff4d1f', 20: '#0b3049', 15: '#eeea3d', 10: '#1f5c5c', 5: '#b9c2ba' };
+const PLATE_INK  = { 25: '#fff',    20: '#fff',    15: '#14120f', 10: '#fff',    5: '#14120f' };
 
 function calcPlatesPerSide(kg) {
   const plateTotal = kg - LOADER_BAR;
@@ -1632,58 +1636,73 @@ function roundToLoadable(kg) {
 }
 
 function buildBarbellSVG(plates) {
-  const H = 150, barY = H / 2, barH = 10;
-  const CW = 14, CH = 54, GAP = 3, CP = 32, TAIL = 22;
-  const sp = {
-    25: { h: 100, w: 18 }, 20: { h: 88, w: 16 },
-    15: { h:  76, w: 14 }, 10: { h: 62, w: 12 }, 5: { h: 46, w: 9 },
-  };
-  const oneSide = plates.reduce((s, p) => s + sp[p].w + GAP, 0);
-  const halfW = CP + GAP + oneSide + CW + TAIL;
-  const W = halfW * 2, cx = halfW;
-  const el = [];
+  if (!plates.length) return '';
+  const VW = { 5: 699, 10: 729, 15: 779, 20: 849, 25: 849 };
+  const PH = { 5: 52,  10: 68,  15: 84,  20: 100, 25: 120 };
+  const FC = { 5: '#F4BFED', 10: '#F3F343', 15: '#276268', 20: '#4A5328', 25: '#002E50' };
+  const SK = 'stroke="#1B1A17" stroke-width="40"';
 
-  el.push(`<rect x="${TAIL}" y="${barY - barH/2}" width="${W-TAIL*2}" height="${barH}" fill="#c8c8c8" rx="${barH/2}"/>`);
-  el.push(`<rect x="${cx-CP}" y="${barY-barH/2-3}" width="${CP*2}" height="${barH+6}" fill="#999" rx="3"/>`);
-
-  const plate = (x, s) => {
-    const py = barY - sp[s].h / 2;
-    el.push(`<rect x="${x}" y="${py}" width="${sp[s].w}" height="${sp[s].h}" fill="${PLATE_FILL[s]}" rx="3"/>`);
-    el.push(`<rect x="${x}" y="${py}" width="3" height="${sp[s].h}" fill="#ffffff28" rx="2"/>`);
-    const fs = sp[s].w >= 14 ? 11 : 9;
-    el.push(`<text transform="rotate(90,${x+sp[s].w/2},${barY})" x="${x+sp[s].w/2}" y="${barY}" text-anchor="middle" dominant-baseline="central" font-size="${fs}" font-weight="800" fill="${PLATE_INK[s]}" font-family="Arial,sans-serif">${s}</text>`);
+  // Body fill path (D-shape side + left arc)
+  const BD = {
+    5:  'M433 0C477.488 0 515.07 32.5851 545.527 79.4795C576.545 127.237 603.716 195.019 626.233 276.988C671.347 441.212 699 666.953 699 915.5C699 1164.05 671.347 1389.79 626.233 1554.01C603.716 1635.98 576.545 1703.76 545.527 1751.52C515.07 1798.41 477.488 1831 433 1831L285.5 1831C241.062 1831 203.546 1798.39 173.157 1751.5C142.204 1703.75 115.088 1635.97 92.6172 1554C47.5965 1389.78 20 1164.04 20 915.5C20 666.955 47.5965 441.218 92.6172 276.998C115.088 195.031 142.204 127.251 173.157 79.4951C203.431 32.7873 240.78 0.246 285 0Z',
+    10: 'M463 0C507.488 0 545.07 32.5851 575.527 79.4795C606.545 127.237 633.716 195.019 656.233 276.988C701.347 441.212 729 666.953 729 915.5C729 1164.05 701.347 1389.79 656.233 1554.01C633.716 1635.98 606.545 1703.76 575.527 1751.52C545.07 1798.41 507.488 1831 463 1831H285.5C242.062 1831 204.546 1798.39 174.157 1751.5C143.204 1703.75 116.088 1635.97 93.6172 1554C48.5965 1389.78 21 1164.04 21 915.5C21 666.955 48.5965 441.218 93.6172 276.998C116.088 195.031 143.204 127.251 174.157 79.4951C204.431 32.7873 241.78 0.246 286 0Z',
+    15: 'M513 0C557.488 0 595.07 32.5851 625.527 79.4795C656.545 127.237 683.716 195.019 706.233 276.988C751.347 441.212 779 666.953 779 915.5C779 1164.05 751.347 1389.79 706.233 1554.01C683.716 1635.98 656.545 1703.76 625.527 1751.52C595.07 1798.41 557.488 1831 513 1831L336.5 1831C292.062 1831 254.546 1798.39 224.157 1751.5C193.204 1703.75 166.088 1635.97 143.617 1554C98.5965 1389.78 71 1164.04 71 915.5C71 666.955 98.5965 441.218 143.617 276.998C166.088 195.031 193.204 127.251 224.157 79.4951C254.431 32.7873 291.78 0.246 336 0Z',
+    20: 'M583 0C627.488 0 665.07 32.5851 695.527 79.4795C726.545 127.237 753.716 195.019 776.233 276.988C821.347 441.212 849 666.953 849 915.5C849 1164.05 821.347 1389.79 776.233 1554.01C753.716 1635.98 726.545 1703.76 695.527 1751.52C665.07 1798.41 627.488 1831 583 1831H265.5C221.062 1831 183.546 1798.39 153.157 1751.5C122.204 1703.75 95.0884 1635.97 72.6172 1554C27.5965 1389.78 0 1164.04 0 915.5C0 666.955 27.5965 441.218 72.6172 276.998C95.0884 195.031 122.204 127.251 153.157 79.4951C183.431 32.7873 220.78 0.246 265 0Z',
+    25: 'M583 0C627.488 0 665.07 32.5851 695.527 79.4795C726.545 127.237 753.716 195.019 776.233 276.988C821.347 441.212 849 666.953 849 915.5C849 1164.05 821.347 1389.79 776.233 1554.01C753.716 1635.98 726.545 1703.76 695.527 1751.52C665.07 1798.41 627.488 1831 583 1831H265.5C221.062 1831 183.546 1798.39 153.157 1751.5C122.204 1703.75 95.0884 1635.97 72.6172 1554C27.5965 1389.78 0 1164.04 0 915.5C0 666.955 27.5965 441.218 72.6172 276.998C95.0884 195.031 122.204 127.251 153.157 79.4951C183.431 32.7873 220.78 0.246 265 0Z',
   };
 
-  let rx = cx + CP + GAP;
-  for (const p of plates) { plate(rx, p); rx += sp[p].w + GAP; }
-  el.push(`<rect x="${rx}" y="${barY-CH/2}" width="${CW}" height="${CH}" fill="#444" rx="3"/>`);
+  // Depth edge stroke path
+  const ED = {
+    5:  'M266 20 433 20C568.862 20 679 420.929 679 915.5C679 1410.07 568.862 1811 433 1811L268 1811',
+    10: 'M265 20H463C598.862 20 709 420.929 709 915.5C709 1410.07 598.862 1811 463 1811H267',
+    15: 'M255 20L513 20C648.862 20 759 420.929 759 915.5C759 1410.07 648.862 1811 513 1811L257 1811',
+    20: 'M265 20H583C718.862 20 829 420.929 829 915.5C829 1410.07 718.862 1811 583 1811H267',
+    25: 'M265 20H583C718.862 20 829 420.929 829 915.5C829 1410.07 718.862 1811 583 1811H267',
+  };
 
-  let lx = cx - CP - GAP;
-  for (const p of plates) { lx -= sp[p].w; plate(lx, p); lx -= GAP; }
-  el.push(`<rect x="${lx-CW}" y="${barY-CH/2}" width="${CW}" height="${CH}" fill="#444" rx="3"/>`);
+  // Inner ring + hole center (20/25 have a perspective offset)
+  const IC = { 5: [265.5,915.5], 10: [265.5,915.5], 15: [265.5,915.5], 20: [245.5,895.5], 25: [245.5,895.5] };
+  // 5kg inner ring has explicit fill; others are transparent (concentric ring effect)
+  const IRF = { 5: true, 10: false, 15: false, 20: false, 25: false };
 
-  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto">${el.join('')}</svg>`;
+  const items = plates.map(sz => {
+    const h = PH[sz], w = Math.round(VW[sz] * h / 1831), c = FC[sz];
+    const [icx, icy] = IC[sz];
+    const irFill = IRF[sz] ? `fill="${c}"` : 'fill="none"';
+    return `<svg viewBox="0 0 ${VW[sz]} 1831" height="${h}" width="${w}" xmlns="http://www.w3.org/2000/svg">` +
+      `<path fill-rule="evenodd" clip-rule="evenodd" d="${BD[sz]}" fill="${c}"/>` +
+      `<path d="${ED[sz]}" ${SK} fill="none"/>` +
+      `<ellipse cx="265.5" cy="915.5" rx="245.5" ry="895.5" fill="${c}" ${SK}/>` +
+      `<ellipse cx="${icx}" cy="${icy}" rx="116.5" ry="664.5" ${irFill} ${SK}/>` +
+      `<ellipse cx="${icx}" cy="${icy}" rx="44.5" ry="155.5" fill="#1B1A17"/>` +
+      `</svg>`;
+  }).join('');
+
+  return `<div style="display:flex;align-items:center;justify-content:center;gap:6px;padding:12px 0">${items}</div>`;
 }
 
 function renderLoader(baseKg, pct) {
   const target = roundToLoadable(baseKg * pct / 100);
   const plates = calcPlatesPerSide(target) || [];
-  document.getElementById('loader-result-kg').textContent = `${target} kg`;
+  const barChip = `<span class="loader-chip loader-chip-bar">Barra · 20 kg</span>`;
   if (plates.length === 0) {
-    document.getElementById('loader-result-sub').textContent = 'Solo la barra (20 kg)';
-    document.getElementById('loader-plate-summary').innerHTML = '';
+    document.getElementById('loader-plate-summary').innerHTML = barChip;
   } else {
     const groups = {};
     plates.forEach(p => { groups[p] = (groups[p] || 0) + 1; });
-    const sides = LOADER_PLATES.filter(p => groups[p])
-      .map(p => `${p}kg${groups[p] > 1 ? ' ×' + groups[p] : ''}`).join(' + ');
-    document.getElementById('loader-result-sub').textContent = `Barra 20kg  +  ${sides}  (cada lado)`;
-    document.getElementById('loader-plate-summary').innerHTML =
+    document.getElementById('loader-plate-summary').innerHTML = barChip +
       LOADER_PLATES.filter(p => groups[p]).map(p =>
         `<span class="loader-chip" style="background:${PLATE_FILL[p]};color:${PLATE_INK[p]}">${p} kg × ${groups[p] * 2}</span>`
       ).join('');
   }
   document.getElementById('loader-barbell-wrap').innerHTML = buildBarbellSVG(plates);
+}
+
+function autosizeLoaderInput() {
+  const input = document.getElementById('loader-weight-input');
+  if (!input) return;
+  const len = Math.max(input.value.length || input.placeholder.length, 1);
+  input.style.width = `${len + 0.4}ch`;
 }
 
 function initLoaderTab() {
@@ -1692,12 +1711,14 @@ function initLoaderTab() {
   let activePct = 100;
 
   const update = () => {
+    autosizeLoaderInput();
     const base = parseFloat(input.value) || 0;
     if (base < LOADER_BAR) { document.getElementById('loader-result').classList.add('hidden'); return; }
     document.getElementById('loader-result').classList.remove('hidden');
     renderLoader(base, activePct);
   };
 
+  autosizeLoaderInput();
   input.addEventListener('input', update);
   pctBtns.forEach(btn => btn.addEventListener('click', () => {
     pctBtns.forEach(b => b.classList.remove('active'));
@@ -2040,10 +2061,10 @@ function initRoundsTracker() {
 function initNav() {
   document.querySelectorAll('.nav-btn').forEach((btn) => {
     btn.addEventListener('click', () => {
-      // La página del WOD Destacado es un overlay a pantalla completa: si se
-      // navega a otra pestaña por debajo hay que cerrarla, si no se queda
-      // tapando la pestaña nueva y parece que no ha pasado nada.
       closeFeaturedWodPage();
+      document.getElementById('peso-page').classList.add('hidden');
+      document.body.style.overflow = '';
+      closeProfileEditForm();
       document.querySelectorAll('.nav-btn').forEach((b) => b.classList.remove('active'));
       document.querySelectorAll('.tab').forEach((t) => t.classList.remove('active'));
       btn.classList.add('active');

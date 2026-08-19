@@ -66,6 +66,9 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
     <symbol id="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/>
     </symbol>
+    <symbol id="icon-warning" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+    </symbol>
     <symbol id="icon-flame" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <path d="M12 2c1 3-3 4-3 8a3 3 0 0 0 6 0c1 1 2 2 2 4a5 5 0 0 1-10 0c0-5 4-6 5-12z"/>
     </symbol>
@@ -432,7 +435,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
 <!-- Popup anti-flipismo -->
 <div class="modal-overlay hidden" id="no-te-flipes-modal">
   <div class="modal-card no-te-flipes-card">
-    <p class="no-te-flipes-emoji">🚨</p>
+    <svg class="no-te-flipes-icon" aria-hidden="true"><use href="#icon-warning"/></svg>
     <p class="no-te-flipes-title">NO TE FLIPES</p>
     <p class="no-te-flipes-sub">520 kg es el límite, campeón.</p>
     <button class="btn no-te-flipes-btn" id="no-te-flipes-ok">Ok</button>

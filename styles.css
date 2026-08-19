@@ -1337,17 +1337,64 @@ input[type="date"].modal-date-input::-webkit-calendar-picker-indicator { cursor:
 
 /* ===== TIMER LANDSCAPE ===== */
 @media (orientation: landscape) {
+  body:has(#tab-timer.active) .topbar { display: none; }
+  body:has(#tab-timer.active) .bottomnav { display: none; }
+
   #tab-timer.active {
+    display: grid;
+    grid-template-columns: 1fr 190px;
+    grid-template-rows: auto 1fr;
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: var(--paper);
+    padding-top: max(env(safe-area-inset-top), 10px);
+    padding-bottom: max(env(safe-area-inset-bottom), 10px);
+    padding-left: max(env(safe-area-inset-left), 20px);
+    padding-right: max(env(safe-area-inset-right), 20px);
+    column-gap: 16px;
+    overflow: hidden;
+    min-height: unset;
+  }
+
+  #tab-timer.active .timer-mode-row {
+    grid-column: 1; grid-row: 1;
+    margin-bottom: 0;
+    padding-bottom: 6px;
+    align-self: end;
+  }
+
+  #tab-timer.active .timer-card {
+    grid-column: 1; grid-row: 2;
+    flex: unset;
     display: flex;
     flex-direction: column;
-    min-height: calc(100svh - 56px - env(safe-area-inset-top));
+    justify-content: center;
+    padding-bottom: 0;
   }
-  .timer-mode-row { margin-bottom: 8px; }
-  .timer-card { flex: 1; justify-content: center; padding-bottom: 8px; }
-  .timer-center { --timer-num-size: clamp(4.5rem, 14vw, 8rem); }
-  .section-divider { margin: 0 0 8px; }
-  .rounds-grid { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 8px; }
-  .rounds-row { gap: 8px; }
+
+  #tab-timer.active .section-divider { display: none; }
+
+  #tab-timer.active .plain-section {
+    grid-column: 2; grid-row: 1 / span 2;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    box-shadow: -2px 0 0 0 var(--ink);
+    padding-left: 14px;
+  }
+
+  #tab-timer.active .timer-center {
+    --timer-num-size: clamp(3.5rem, 11vh, 6.5rem);
+  }
+
+  #tab-timer.active .rounds-grid {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    gap: 6px;
+  }
+
+  #tab-timer.active .rounds-header { margin-bottom: 10px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

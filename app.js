@@ -1617,8 +1617,8 @@ function initPesoPage() {
 const LOADER_BAR = 20;
 const LOADER_PLATES = [25, 20, 15, 10, 5];
 // Colores de marca: acento/naranja, navy, amarillo, teal, sage
-const PLATE_FILL = { 25: '#ff4d1f', 20: '#0b3049', 15: '#eeea3d', 10: '#1f5c5c', 5: '#b9c2ba' };
-const PLATE_INK  = { 25: '#fff',    20: '#fff',    15: '#14120f', 10: '#fff',    5: '#14120f' };
+const PLATE_FILL = { 25: '#002E50', 20: '#4A5328', 15: '#276268', 10: '#F3F343', 5: '#F4BFED' };
+const PLATE_INK  = { 25: '#fff',    20: '#fff',    15: '#fff',    10: '#14120f', 5: '#14120f' };
 
 function calcPlatesPerSide(kg) {
   const plateTotal = kg - LOADER_BAR;
@@ -1638,7 +1638,7 @@ function roundToLoadable(kg) {
 function buildBarbellSVG(plates) {
   if (!plates.length) return '';
   const VW = { 5: 699, 10: 729, 15: 779, 20: 849, 25: 849 };
-  const PH = { 5: 52,  10: 68,  15: 84,  20: 100, 25: 120 };
+  const PH = { 5: 110, 10: 110, 15: 110, 20: 110, 25: 110 };
   const FC = { 5: '#F4BFED', 10: '#F3F343', 15: '#276268', 20: '#4A5328', 25: '#002E50' };
   const SK = 'stroke="#1B1A17" stroke-width="40"';
 
@@ -1695,7 +1695,8 @@ function renderLoader(baseKg, pct) {
         `<span class="loader-chip" style="background:${PLATE_FILL[p]};color:${PLATE_INK[p]}">${p} kg × ${groups[p] * 2}</span>`
       ).join('');
   }
-  document.getElementById('loader-barbell-wrap').innerHTML = buildBarbellSVG(plates);
+  const allPlates = [...plates, ...plates].sort((a, b) => b - a);
+  document.getElementById('loader-barbell-wrap').innerHTML = buildBarbellSVG(allPlates);
 }
 
 function autosizeLoaderInput() {

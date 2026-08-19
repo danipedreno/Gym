@@ -1711,9 +1711,18 @@ function initLoaderTab() {
   const pctBtns = [...document.querySelectorAll('.loader-pct-btn')];
   let activePct = 100;
 
+  const noTeFlipesModal = document.getElementById('no-te-flipes-modal');
+  document.getElementById('no-te-flipes-ok').addEventListener('click', () => {
+    noTeFlipesModal.classList.add('hidden');
+    input.value = '';
+    autosizeLoaderInput();
+    document.getElementById('loader-result').classList.add('hidden');
+  });
+
   const update = () => {
     autosizeLoaderInput();
     const base = parseFloat(input.value) || 0;
+    if (base > 520) { noTeFlipesModal.classList.remove('hidden'); return; }
     if (base < LOADER_BAR) { document.getElementById('loader-result').classList.add('hidden'); return; }
     document.getElementById('loader-result').classList.remove('hidden');
     renderLoader(base, activePct);

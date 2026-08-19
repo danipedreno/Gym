@@ -385,6 +385,11 @@ input[type="number"].bw-input {
   animation: modal-in .25s var(--ease);
 }
 .modal-card-scroll { max-height: calc(100vh - 48px); overflow-y: auto; }
+.no-te-flipes-card { text-align: center; padding: 32px 24px; background: var(--ink); border-color: var(--accent); }
+.no-te-flipes-emoji { font-size: 2.8rem; margin: 0 0 12px; }
+.no-te-flipes-title { font-size: 2rem; font-weight: 900; font-style: italic; color: var(--accent); margin: 0 0 8px; letter-spacing: -0.02em; font-family: var(--font-condensed, var(--font)); }
+.no-te-flipes-sub { font-size: 0.9rem; color: var(--paper); margin: 0 0 24px; opacity: 0.75; }
+.no-te-flipes-btn { width: 100%; margin-top: 0; background: var(--accent); color: #fff; border-color: var(--accent); font-size: 1rem; }
 @keyframes modal-in {
   from { opacity: 0; transform: scale(0.94) translateY(8px); }
   to { opacity: 1; transform: scale(1) translateY(0); }

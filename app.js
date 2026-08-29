@@ -772,9 +772,9 @@ const FEATURED_WODS = [
   {
     blocks: [
       {
-        color: 'c0',
+        color: 'c3',
         icon: 'timer',
-        illus: 'warmup',
+        illus: 'strength',
         title: 'Calentamiento',
         badge: "EMOM 6'",
         items: [
@@ -783,9 +783,9 @@ const FEATURED_WODS = [
         ],
       },
       {
-        color: 'c1',
+        color: 'c2',
         icon: 'dumbbell',
-        illus: 'strength',
+        illus: 'wod',
         title: 'Fuerza y Estabilidad Progresiva',
         items: [
           { main: '12 Sentadillas Goblet con KB o Sentadilla Trasera' },
@@ -801,9 +801,9 @@ const FEATURED_WODS = [
         note: '*Ajusta a 8-10 reps en sentadillas y 8 en press/jalón si pesa mucho.',
       },
       {
-        color: 'c2',
+        color: 'c1',
         icon: 'flame',
-        illus: 'wod',
+        illus: 'warmup',
         title: 'El WOD Estrella',
         badge: "AMRAP 15'",
         items: [
@@ -818,9 +818,9 @@ const FEATURED_WODS = [
   {
     blocks: [
       {
-        color: 'c0',
+        color: 'c4',
         icon: 'timer',
-        illus: 'warmup',
+        illus: 'wod',
         title: 'Calentamiento',
         badge: "EMOM 6'",
         items: [
@@ -829,9 +829,9 @@ const FEATURED_WODS = [
         ],
       },
       {
-        color: 'c1',
+        color: 'c0',
         icon: 'dumbbell',
-        illus: 'strength',
+        illus: 'warmup',
         title: 'Fuerza y Estabilidad Progresiva',
         items: [
           { main: '12 Zancadas traseras con Mancuernas (6 por pierna)' },
@@ -847,9 +847,9 @@ const FEATURED_WODS = [
         note: '*Ajusta a 8-10 reps en zancadas y remos, y a 8 en press si pesa mucho.',
       },
       {
-        color: 'c2',
+        color: 'c3',
         icon: 'flame',
-        illus: 'wod',
+        illus: 'strength',
         title: 'El WOD Estrella',
         badge: "AMRAP 15'",
         items: [

@@ -1009,6 +1009,8 @@ input[type="date"].modal-date-input::-webkit-calendar-picker-indicator { cursor:
 .wod-block.c0 { background: var(--teal); color: var(--white); }
 .wod-block.c1 { background: var(--yellow); color: var(--ink); }
 .wod-block.c2 { background: var(--navy); color: var(--white); }
+.wod-block.c3 { background: var(--pink); color: var(--ink); }
+.wod-block.c4 { background: var(--olive); color: var(--white); }
 
 /* Progresión de carga: el circuito de ejercicios se lista una sola vez (es
    el mismo en las 4 rondas), y aquí solo cambia el % — mostrarlo como tira

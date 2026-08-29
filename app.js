@@ -722,52 +722,146 @@ function initRmsTab() {
 }
 
 // ===== WOD Destacado: entreno completo de 3 bloques, fijado arriba del buscador =====
-const FEATURED_WOD = {
-  blocks: [
-    {
-      color: 'c0',
-      icon: 'timer',
-      illus: 'warmup',
-      title: 'Calentamiento',
-      badge: "EMOM 6'",
-      items: [
-        { main: 'Minutos impares 1, 3, 5', sub: '12 sentadillas libres + 20s plancha abdominal activa.' },
-        { main: 'Minutos pares 2, 4, 6', sub: '8 flexiones + 30s plancha lateral, 15s por lado.' },
-      ],
-    },
-    {
-      color: 'c1',
-      icon: 'dumbbell',
-      illus: 'strength',
-      title: 'Fuerza y Estabilidad Progresiva',
-      items: [
-        { main: '12 pesos muertos con KB' },
-        { main: '10 press militar con mancuernas' },
-        { main: '12 remos con mancuernas' },
-      ],
-      rounds: [
-        { n: 1, pct: '50%' },
-        { n: 2, pct: '60%' },
-        { n: 3, pct: '70%' },
-        { n: 4, pct: '80%', marker: '*' },
-      ],
-      note: '*Si pesa mucho, baja a 8-10 reps en muerto y remos, y a 8 en press militar.',
-    },
-    {
-      color: 'c2',
-      icon: 'flame',
-      illus: 'wod',
-      title: 'El Work Out del Día',
-      badge: "AMRAP 15'",
-      items: [
-        { main: '15 wall ball shots' },
-        { main: '18 ring rows' },
-        { main: '15 kettlebell swings', genders: [{ icon: 'female', text: '12-16 kg' }, { icon: 'male', text: '20-24 kg' }] },
-        { main: '9 burpees' },
-      ],
-    },
-  ],
-};
+const FEATURED_WODS = [
+  {
+    blocks: [
+      {
+        color: 'c0',
+        icon: 'timer',
+        illus: 'warmup',
+        title: 'Calentamiento',
+        badge: "EMOM 6'",
+        items: [
+          { main: 'Minutos impares 1, 3, 5', sub: '12 sentadillas libres + 20s plancha abdominal activa.' },
+          { main: 'Minutos pares 2, 4, 6', sub: '8 flexiones + 30s plancha lateral, 15s por lado.' },
+        ],
+      },
+      {
+        color: 'c1',
+        icon: 'dumbbell',
+        illus: 'strength',
+        title: 'Fuerza y Estabilidad Progresiva',
+        items: [
+          { main: '12 pesos muertos con KB' },
+          { main: '10 press militar con mancuernas' },
+          { main: '12 remos con mancuernas' },
+        ],
+        rounds: [
+          { n: 1, pct: '50%' },
+          { n: 2, pct: '60%' },
+          { n: 3, pct: '70%' },
+          { n: 4, pct: '80%', marker: '*' },
+        ],
+        note: '*Si pesa mucho, baja a 8-10 reps en muerto y remos, y a 8 en press militar.',
+      },
+      {
+        color: 'c2',
+        icon: 'flame',
+        illus: 'wod',
+        title: 'El Work Out del Día',
+        badge: "AMRAP 15'",
+        items: [
+          { main: '15 wall ball shots' },
+          { main: '18 ring rows' },
+          { main: '15 kettlebell swings', genders: [{ icon: 'female', text: '12-16 kg' }, { icon: 'male', text: '20-24 kg' }] },
+          { main: '9 burpees' },
+        ],
+      },
+    ],
+  },
+  {
+    blocks: [
+      {
+        color: 'c0',
+        icon: 'timer',
+        illus: 'warmup',
+        title: 'Calentamiento',
+        badge: "EMOM 6'",
+        items: [
+          { main: 'Minutos impares 1, 3, 5', sub: '10 Zancadas alternas paso atrás + 20s Plancha de Oso (rodillas a 2 cm del suelo).' },
+          { main: 'Minutos pares 2, 4, 6', sub: '10 Puentes de Glúteo en suelo + 20s Plancha Hollow.' },
+        ],
+      },
+      {
+        color: 'c1',
+        icon: 'dumbbell',
+        illus: 'strength',
+        title: 'Fuerza y Estabilidad Progresiva',
+        items: [
+          { main: '12 Sentadillas Goblet con KB o Sentadilla Trasera' },
+          { main: '10 Floor Press con Mancuernas' },
+          { main: '10 Dominadas asistidas / Jalón al Pecho' },
+        ],
+        rounds: [
+          { n: 1, pct: '50%' },
+          { n: 2, pct: '60%' },
+          { n: 3, pct: '70%' },
+          { n: 4, pct: '80%', marker: '*' },
+        ],
+        note: '*Ajusta a 8-10 reps en sentadillas y 8 en press/jalón si pesa mucho.',
+      },
+      {
+        color: 'c2',
+        icon: 'flame',
+        illus: 'wod',
+        title: 'El WOD Estrella',
+        badge: "AMRAP 15'",
+        items: [
+          { main: '12 Step-ups con Mancuernas / Salto a Cajón' },
+          { main: '15 Push-ups Release', sub: 'Levanta las manos del suelo medio segundo antes de empujar.' },
+          { main: '18 Abdominales Sit-ups' },
+          { main: '200m Remadora / Carrera / 45s Comba' },
+        ],
+      },
+    ],
+  },
+  {
+    blocks: [
+      {
+        color: 'c0',
+        icon: 'timer',
+        illus: 'warmup',
+        title: 'Calentamiento',
+        badge: "EMOM 6'",
+        items: [
+          { main: 'Minutos impares 1, 3, 5', sub: '10 Sentadillas Cossack alternando lados + 20s Plancha en codos con toques de hombro.' },
+          { main: 'Minutos pares 2, 4, 6', sub: '12 Good Mornings sin peso (bisagra de cadera) + 30s Superman Hold.' },
+        ],
+      },
+      {
+        color: 'c1',
+        icon: 'dumbbell',
+        illus: 'strength',
+        title: 'Fuerza y Estabilidad Progresiva',
+        items: [
+          { main: '12 Zancadas traseras con Mancuernas (6 por pierna)' },
+          { main: '10 Press Inclinado con Mancuernas o Push-Press' },
+          { main: '12 Remos al Mentón con KB (Upright Rows)' },
+        ],
+        rounds: [
+          { n: 1, pct: '50%' },
+          { n: 2, pct: '60%' },
+          { n: 3, pct: '70%' },
+          { n: 4, pct: '80%', marker: '*' },
+        ],
+        note: '*Ajusta a 8-10 reps en zancadas y remos, y a 8 en press si pesa mucho.',
+      },
+      {
+        color: 'c2',
+        icon: 'flame',
+        illus: 'wod',
+        title: 'El WOD Estrella',
+        badge: "AMRAP 15'",
+        items: [
+          { main: '12 Kettlebell Snatches alternos', sub: '6 por brazo: tirón explosivo directo arriba.' },
+          { main: '15 Jumping Lunges / Zancadas dinámicas' },
+          { main: '18 Ring Rows / Remos en Anillas' },
+          { main: '12 Burpees sobre la Kettlebell' },
+        ],
+      },
+    ],
+  },
+];
 
 // Cada ejercicio es un objeto { main, sub?, genders? }: sub es una nota (antes
 // entre paréntesis o tras ":", ahora en línea aparte y en peso más ligero) y
@@ -858,9 +952,9 @@ const WOD_ILLUSTRATIONS = {
 // Página a pantalla completa, no desplegable: 3 tarjetas (una por bloque) en
 // una fila con scroll horizontal + snap, para deslizar de una a otra como en
 // un carrusel de stories. Los puntos de arriba marcan en cuál se está.
-function renderFeaturedWod() {
+function renderFeaturedWod(wod) {
   const swipe = document.getElementById('featured-wod-swipe');
-  swipe.innerHTML = FEATURED_WOD.blocks.map((block) => `
+  swipe.innerHTML = wod.blocks.map((block) => `
     <div class="wod-block ${block.color}">
       ${WOD_ILLUSTRATIONS[block.illus] || ''}
       <div class="wod-block-content">
@@ -876,7 +970,7 @@ function renderFeaturedWod() {
   `).join('');
 
   const dots = document.getElementById('featured-wod-dots');
-  dots.innerHTML = FEATURED_WOD.blocks.map((_, i) => `<span class="featured-wod-dot${i === 0 ? ' active' : ''}"></span>`).join('');
+  dots.innerHTML = wod.blocks.map((_, i) => `<span class="featured-wod-dot${i === 0 ? ' active' : ''}"></span>`).join('');
 }
 
 // Solo se recuerda cuál era el índice anterior para no relanzar la animación
@@ -898,8 +992,9 @@ function updateFeaturedWodActive() {
   illus.classList.add('in-view');
 }
 
-function openFeaturedWodPage() {
+function openFeaturedWodPage(wodIndex) {
   const swipe = document.getElementById('featured-wod-swipe');
+  renderFeaturedWod(FEATURED_WODS[wodIndex] || FEATURED_WODS[0]);
   document.getElementById('featured-wod-page').classList.remove('hidden');
   document.body.style.overflow = 'hidden';
   swipe.scrollLeft = 0;
@@ -1112,14 +1207,15 @@ function renderWodList() {
 function initWodsTab() {
   renderWodList();
 
-  document.getElementById('featured-wod-btn').addEventListener('click', openFeaturedWodPage);
+  document.querySelectorAll('[data-wod]').forEach(btn =>
+    btn.addEventListener('click', () => openFeaturedWodPage(parseInt(btn.dataset.wod)))
+  );
   document.getElementById('featured-wod-back').addEventListener('click', closeFeaturedWodPage);
   let dotsDebounce = null;
   document.getElementById('featured-wod-swipe').addEventListener('scroll', () => {
     clearTimeout(dotsDebounce);
     dotsDebounce = setTimeout(updateFeaturedWodActive, 50);
   }, { passive: true });
-  renderFeaturedWod();
 }
 
 // ===== Tab: Peso (peso corporal + composición) =====

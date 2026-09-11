@@ -914,12 +914,12 @@ const FEATURED_WODS = [
         icon: 'timer',
         illus: 'strength',
         title: 'Calentamiento',
-        badge: '2 Rondas',
+        badge: '3 Rondas',
         items: [
-          { main: '10 Sentadillas al aire lentas' },
-          { main: '10 Zancadas sin peso (5 por pierna)' },
-          { main: '10 Flexiones lentas' },
-          { main: '20s Plancha en codos' },
+          { main: '30s Jumping Jacks' },
+          { main: '10 Puentes de Glúteo en suelo', sub: 'Tumbado boca arriba, pies apoyados, sube y baja la cadera.' },
+          { main: '10 Escaladores lentos (Mountain Climbers)', sub: 'En plancha, lleva rodilla al pecho alternando, sin prisa.' },
+          { main: '10 Sentadillas Sumo sin peso', sub: 'Pies más abiertos que los hombros, puntas hacia fuera.' },
         ],
       },
       {

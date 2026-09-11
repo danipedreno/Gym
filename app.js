@@ -916,9 +916,9 @@ const FEATURED_WODS = [
         title: 'Calentamiento',
         badge: '2 Rondas',
         items: [
-          { main: '10 Sentadillas al aire lentas', sub: 'Foco en movilidad de cadera, baja despacio.' },
-          { main: '10 Rotaciones de brazos', sub: '5 círculos grandes hacia delante + 5 hacia atrás.' },
-          { main: '10 Balanceos de pierna (5 por pierna)', sub: 'Frontales y laterales, sujetándote a algo si hace falta.' },
+          { main: '10 Sentadillas al aire lentas' },
+          { main: '10 Zancadas sin peso (5 por pierna)' },
+          { main: '10 Flexiones lentas' },
           { main: '20s Plancha en codos' },
         ],
       },

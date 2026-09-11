@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rm-gym-v19';
+const CACHE_NAME = 'rm-gym-v20';
 const ASSETS = [
   './',
   './index.html',

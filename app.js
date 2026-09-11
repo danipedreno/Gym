@@ -870,8 +870,8 @@ const FEATURED_WODS = [
         title: 'Calentamiento',
         badge: "EMOM 6'",
         items: [
-          { main: 'Minutos impares 1, 3, 5', sub: '10 Romanian Deadlift ligero con mancuernas + 20s Plancha con toques de hombro alternos.' },
-          { main: 'Minutos pares 2, 4, 6', sub: '10 Hip circles (5 por lado en cuadrupedia) + 30s Dead Bug con extensiones alternas.' },
+          { main: 'Minutos impares 1, 3, 5', sub: '10 Sentadillas al aire lentas + 10 rotaciones de brazos (círculos grandes hacia delante y atrás).' },
+          { main: 'Minutos pares 2, 4, 6', sub: '10 Flexiones lentas (3 segundos bajando) + 20s plancha en codos.' },
         ],
       },
       {
@@ -880,9 +880,9 @@ const FEATURED_WODS = [
         illus: 'warmup',
         title: 'Fuerza y Estabilidad Progresiva',
         items: [
-          { main: '10 Romanian Deadlift con Mancuernas' },
-          { main: '10 Arnold Press con Mancuernas', sub: 'Sentado o de pie — press rotacional de hombros.' },
-          { main: '12 Renegade Rows con Mancuernas (6 por lado)', sub: 'En posición de plancha.' },
+          { main: '10 Sentadillas Goblet con KB o Mancuerna' },
+          { main: '10 Floor Press con Mancuernas', sub: 'Tumbado en el suelo, press de pecho.' },
+          { main: '10 Remo inclinado con Mancuernas de pie', sub: 'Torso a 45°, ambos brazos a la vez.' },
         ],
         rounds: [
           { n: 1, pct: '50%' },
@@ -890,7 +890,7 @@ const FEATURED_WODS = [
           { n: 3, pct: '70%' },
           { n: 4, pct: '80%', marker: '*' },
         ],
-        note: '*En R4, ajusta a 8 RDL, 8 Arnold y 10 remos si pesa mucho.',
+        note: '*En R4, baja a 8 reps si pesa mucho.',
       },
       {
         color: 'c0',
@@ -899,10 +899,10 @@ const FEATURED_WODS = [
         title: 'El WOD Estrella',
         badge: "AMRAP 15'",
         items: [
-          { main: '15 KB Swings americanos', sub: 'La KB sube hasta encima de la cabeza.' },
-          { main: '12 Step-ups con Mancuernas alternando piernas' },
-          { main: '9 Dumbbell Thrusters', sub: 'Sentadilla goblet + press al subir.' },
-          { main: '250m Remo / 200m Ski / 30s Air Bike' },
+          { main: '12 KB Swings rusos', sub: 'La KB sube hasta la altura del pecho.' },
+          { main: '10 Zancadas con Mancuernas (5 por pierna)' },
+          { main: '8 Press de Hombros con Mancuernas de pie' },
+          { main: '300m Remo / 200m Ski / 30s Air Bike' },
         ],
       },
     ],
@@ -916,8 +916,8 @@ const FEATURED_WODS = [
         title: 'Calentamiento',
         badge: "EMOM 6'",
         items: [
-          { main: 'Minutos impares 1, 3, 5', sub: '5 Turkish Get-Up parciales por lado (solo hasta codo en suelo) — lentos y controlados.' },
-          { main: 'Minutos pares 2, 4, 6', sub: '12 Leg Swings (6 frontales + 6 laterales por pierna) + 20s Side Plank.' },
+          { main: 'Minutos impares 1, 3, 5', sub: '10 Sentadillas Sumo con KB + 10 Elevaciones de talones lentas.' },
+          { main: 'Minutos pares 2, 4, 6', sub: '10 Pájaros con mancuernas ligeras tumbado boca abajo + 20s Superman Hold.' },
         ],
       },
       {
@@ -926,9 +926,9 @@ const FEATURED_WODS = [
         illus: 'wod',
         title: 'Fuerza y Estabilidad Progresiva',
         items: [
-          { main: '8 KB Clean + Press (4 por lado)', sub: 'Recoge la KB desde el suelo y prensa arriba.' },
-          { main: '10 Single-Leg Deadlift con KB (5 por pierna)', sub: 'Equilibrio y cadena posterior.' },
-          { main: '12 Goblet Squat con pausa 3 segundos en el fondo' },
+          { main: '12 Sentadillas con Mancuernas (una en cada mano a los lados)' },
+          { main: '10 Press Militar con Mancuernas de pie' },
+          { main: '10 Remo inclinado con Mancuernas de pie', sub: 'Torso a 45°, ambos brazos a la vez.' },
         ],
         rounds: [
           { n: 1, pct: '50%' },
@@ -936,7 +936,7 @@ const FEATURED_WODS = [
           { n: 3, pct: '70%' },
           { n: 4, pct: '80%', marker: '*' },
         ],
-        note: '*En R4, ajusta a 6 clean+press y 10 goblet si pesa mucho.',
+        note: '*En R4, baja a 8 reps en press si pesa mucho.',
       },
       {
         color: 'c4',
@@ -945,10 +945,10 @@ const FEATURED_WODS = [
         title: 'El WOD Estrella',
         badge: "AMRAP 15'",
         items: [
-          { main: '12 KB Deadlifts dobles (o mancuerna pesada)' },
-          { main: '10 Push-ups Archer', sub: 'Una mano más adelantada, alternando lado.' },
-          { main: '16 KB Swings rusos con High Pull', sub: 'Sube la KB al nivel del pecho.' },
-          { main: '300m Remo / 200m Ski / 25s Air Bike' },
+          { main: '15 Peso Muerto con KB o dos Mancuernas' },
+          { main: '12 Flexiones' },
+          { main: '9 Burpees' },
+          { main: '250m Remo / 200m Ski / 25s Air Bike' },
         ],
       },
     ],

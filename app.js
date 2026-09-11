@@ -916,7 +916,7 @@ const FEATURED_WODS = [
         title: 'Calentamiento',
         badge: '3 Rondas',
         items: [
-          { main: '30s Jumping Jacks' },
+          { main: '50 Saltos a la Comba' },
           { main: '10 Puentes de Glúteo en suelo', sub: 'Tumbado boca arriba, pies apoyados, sube y baja la cadera.' },
           { main: '10 Escaladores lentos (Mountain Climbers)', sub: 'En plancha, lleva rodilla al pecho alternando, sin prisa.' },
           { main: '10 Sentadillas Sumo sin peso', sub: 'Pies más abiertos que los hombros, puntas hacia fuera.' },

@@ -914,10 +914,12 @@ const FEATURED_WODS = [
         icon: 'timer',
         illus: 'strength',
         title: 'Calentamiento',
-        badge: "EMOM 6'",
+        badge: '2 Rondas',
         items: [
-          { main: 'Minutos impares 1, 3, 5', sub: '10 Sentadillas Sumo con KB + 10 Elevaciones de talones lentas.' },
-          { main: 'Minutos pares 2, 4, 6', sub: '10 Pájaros con mancuernas ligeras tumbado boca abajo + 20s Superman Hold.' },
+          { main: '10 Sentadillas al aire lentas', sub: 'Foco en movilidad de cadera, baja despacio.' },
+          { main: '10 Rotaciones de brazos', sub: '5 círculos grandes hacia delante + 5 hacia atrás.' },
+          { main: '10 Balanceos de pierna (5 por pierna)', sub: 'Frontales y laterales, sujetándote a algo si hace falta.' },
+          { main: '20s Plancha en codos' },
         ],
       },
       {
